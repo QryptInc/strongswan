@@ -14,7 +14,8 @@ Build-Depends: debhelper (>=11~),
                libgmp-dev,
                perl,
                python2,
-               libssl-dev
+               libssl-dev,
+               libsystemd-dev
 Standards-Version: 4.1.4
 Homepage: http://www.strongswan.org
 
