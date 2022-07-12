@@ -1,12 +1,18 @@
 #!/bin/sh
 set -e
 
-OS=$(grep -w "NAME\=" /etc/os-release | cut -d "=" -f 2)
+OS=$(lsb_release -i -s)
+UV=$(lsb_release -r -s)
 
-if [ "$OS" = '"Ubuntu"' ]
+if [ "$OS" = "Ubuntu" ]
 then
-	cp -f openssl-conf/Ubuntu20_04/openssl.cnf debian/strongswan/etc/ssl/openssl.cnf.mlnx
-elif [ "$OS" = '"Debian GNU/Linux"' ]
+	if [ "$UV" = "22.04" ]
+	then
+		cp -f openssl-conf/Ubuntu22_04/openssl.cnf debian/strongswan/etc/ssl/openssl.cnf.mlnx
+	else
+		cp -f openssl-conf/Ubuntu20_04/openssl.cnf debian/strongswan/etc/ssl/openssl.cnf.mlnx
+	fi
+elif [ "$OS" = "Debian" ]
 then
 	cp -f openssl-conf/Debian10/openssl.cnf debian/strongswan/etc/ssl/openssl.cnf.mlnx
 fi
