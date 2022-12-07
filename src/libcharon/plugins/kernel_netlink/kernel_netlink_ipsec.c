@@ -1523,18 +1523,19 @@ static bool netlink_detect_offload(const char *ifname)
 
 /**
  * There are 4 HW offload configuration values:
- * 1. HW_OFFLOAD_NO   : Do not configure HW offload.
- * 2. HW_OFFLOAD_YES  : Configure HW offload.
- *                      Fail SA addition if offload is not supported.
- * 3. HW_OFFLOAD_AUTO : Configure HW offload if supported by the kernel
- *                      and device.
- *                      Do not fail SA addition otherwise.
- * 4. HW_OFFLOAD_FULL : Configure HW FULL offload if supported by the kernel
- *                      Fail SA addition if offload is not supported.
+ * 1. HW_OFFLOAD_NO     : Do not configure HW offload.
+ * 2. HW_OFFLOAD_CRYPTO : Configure crypto HW offload.
+ *                        Fail SA addition if offload is not supported.
+ * 3. HW_OFFLOAD_AUTO   : Configure full HW offload if supported by the kernel and device.
+ *                        If not, configure crypto HW offload if supported by the kernel and device.
+ * 			  If not, do not do not configure HW offload.
+ * 			  Do not fail SA addition if offload is not supported.
+ * 4. HW_OFFLOAD_FULL   : Configure HW FULL offload if supported by the kernel
+ *                        Fail SA addition if offload is not supported.
  */
 static bool config_hw_offload(kernel_ipsec_sa_id_t *id,
 							  kernel_ipsec_add_sa_t *data, struct nlmsghdr *hdr,
-							  int buflen)
+							  int buflen, bool hw_full_offload)
 {
 	host_t *local = data->inbound ? id->dst : id->src;
 	struct xfrm_user_offload *offload;
@@ -1547,8 +1548,8 @@ static bool config_hw_offload(kernel_ipsec_sa_id_t *id,
 		return TRUE;
 	}
 
-	hw_offload_yes = ( (data->hw_offload == HW_OFFLOAD_YES) ||
-			   (data->hw_offload == HW_OFFLOAD_FULL) );
+	hw_offload_yes = ((data->hw_offload == HW_OFFLOAD_CRYPTO) ||
+			   (data->hw_offload == HW_OFFLOAD_FULL));
 
 	if (!charon->kernel->get_interface(charon->kernel, local, &ifname))
 	{
@@ -1578,7 +1579,7 @@ static bool config_hw_offload(kernel_ipsec_sa_id_t *id,
 	offload->flags |= data->inbound ? XFRM_OFFLOAD_INBOUND : 0;
 
 	/* activate full HW offload */
-	if ( data->hw_offload == HW_OFFLOAD_FULL )
+	if (hw_full_offload)
 	{
 		offload->flags |= XFRM_OFFLOAD_FULL;
 	}
@@ -1602,6 +1603,7 @@ METHOD(kernel_ipsec_t, add_sa, status_t,
 	uint16_t icv_size = 64, ipcomp = data->ipcomp;
 	ipsec_mode_t mode = data->mode, original_mode = data->mode;
 	traffic_selector_t *first_src_ts, *first_dst_ts;
+	bool hw_full_offload = FALSE;
 	status_t status = FAILED;
 
 	/* if IPComp is used, we install an additional IPComp SA. if the cpi is 0
@@ -2020,8 +2022,13 @@ METHOD(kernel_ipsec_t, add_sa, status_t,
 			sa->replay_window = data->replay_window;
 		}
 
+		if (data->hw_offload == HW_OFFLOAD_FULL || data->hw_offload == HW_OFFLOAD_AUTO)
+		{
+			hw_full_offload = TRUE;
+		}
+
 		DBG2(DBG_KNL, "  HW offload: %N", hw_offload_names, data->hw_offload);
-		if (!config_hw_offload(id, data, hdr, sizeof(request)))
+		if (!config_hw_offload(id, data, hdr, sizeof(request), hw_full_offload))
 		{
 			DBG1(DBG_KNL, "failed to configure HW offload");
 			goto failed;
@@ -2029,6 +2036,20 @@ METHOD(kernel_ipsec_t, add_sa, status_t,
 	}
 
 	status = this->socket_xfrm->send_ack(this->socket_xfrm, hdr);
+
+	/* If fails when full HW offload is configured then fallback to crypto offload and retry */
+	if (status != SUCCESS && id->proto != IPPROTO_COMP && hw_full_offload && data->hw_offload == HW_OFFLOAD_AUTO)
+	{
+		DBG1(DBG_KNL, "failed to configure full HW offload, try fallbacking to crypto");
+		hw_full_offload = FALSE;
+		if (!config_hw_offload(id, data, hdr, sizeof(request), hw_full_offload))
+		{
+			DBG1(DBG_KNL, "failed to configure HW offload");
+			goto failed;
+		}
+		status = this->socket_xfrm->send_ack(this->socket_xfrm, hdr);
+	}
+
 	if (status == NOT_FOUND && data->update)
 	{
 		DBG1(DBG_KNL, "allocated SPI not found anymore, try to add SAD entry");
@@ -2038,6 +2059,7 @@ METHOD(kernel_ipsec_t, add_sa, status_t,
 
 	if (status != SUCCESS)
 	{
+
 		DBG1(DBG_KNL, "unable to add SAD entry with SPI %.8x%s (%N)", ntohl(id->spi),
 			 markstr, status_names, status);
 		status = FAILED;

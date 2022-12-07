@@ -1042,7 +1042,8 @@ CALLBACK(parse_hw_offload, bool,
 {
 	enum_map_t map[] = {
 		{ "no",		HW_OFFLOAD_NO	},
-		{ "yes",	HW_OFFLOAD_YES	},
+		{ "yes",	HW_OFFLOAD_CRYPTO },
+		{ "crypto",	HW_OFFLOAD_CRYPTO },
 		{ "auto",	HW_OFFLOAD_AUTO	},
 		{ "full",	HW_OFFLOAD_FULL	},
 	};
