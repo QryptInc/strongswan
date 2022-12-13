@@ -2059,7 +2059,6 @@ METHOD(kernel_ipsec_t, add_sa, status_t,
 
 	if (status != SUCCESS)
 	{
-
 		DBG1(DBG_KNL, "unable to add SAD entry with SPI %.8x%s (%N)", ntohl(id->spi),
 			 markstr, status_names, status);
 		status = FAILED;
