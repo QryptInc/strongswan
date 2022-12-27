@@ -66,6 +66,8 @@ init=0
 # List of providers to load
 [provider_sect]
 default = default_sect
+provider = legacy
+
 # The fips section name should match the section name inside the
 # included fipsmodule.cnf.
 # fips = fips_sect
