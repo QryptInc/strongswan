@@ -51,9 +51,9 @@ tsa_policy3 = 1.2.3.4.5.7
 # .include fipsmodule.cnf
 
 [openssl_init]
-providers = provider_sect
+#providers = provider_sect
 ssl_conf = ssl_sect
-engines = engine_section
+#engines = engine_section
 
 [ engine_section ]
 bf = bf_section
