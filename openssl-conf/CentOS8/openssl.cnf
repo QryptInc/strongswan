@@ -29,7 +29,7 @@ openssl_conf = default_modules
 [ default_modules ]
 
 ssl_conf = ssl_module
-engines = engine_section
+#engines = engine_section
 
 [ ssl_module ]
 
