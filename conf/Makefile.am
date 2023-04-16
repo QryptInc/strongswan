@@ -40,6 +40,7 @@ plugins = \
 	plugins/curl.opt \
 	plugins/dhcp.opt \
 	plugins/dnscert.opt \
+	plugins/doca.opt \
 	plugins/drbg.opt \
 	plugins/duplicheck.opt \
 	plugins/eap-aka.opt \

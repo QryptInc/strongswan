@@ -568,6 +568,9 @@ Files:     conf/format-options.py
            src/libcharon/plugins/kernel_libipsec/kernel_libipsec_plugin.h
            src/libcharon/plugins/kernel_libipsec/kernel_libipsec_router.c
            src/libcharon/plugins/kernel_libipsec/kernel_libipsec_router.h
+           src/libcharon/plugins/doca/doca_ipsec.h
+           src/libcharon/plugins/doca/doca_plugin.c
+           src/libcharon/plugins/doca/doca_plugin.h
            src/libcharon/plugins/kernel_netlink/kernel_netlink_ipsec.h
            src/libcharon/plugins/kernel_netlink/kernel_netlink_net.h
            src/libcharon/plugins/kernel_netlink/kernel_netlink_plugin.c
@@ -2305,6 +2308,7 @@ Files:     .appveyor.yml
            conf/plugins/curl.opt
            conf/plugins/dhcp.opt
            conf/plugins/dnscert.opt
+           conf/plugins/doca.opt
            conf/plugins/drbg.opt
            conf/plugins/duplicheck.opt
            conf/plugins/eap-aka-3gpp.opt
@@ -2562,6 +2566,7 @@ Files:     .appveyor.yml
            src/libcharon/plugins/ipseckey/Makefile.am
            src/libcharon/plugins/kernel_iph/Makefile.am
            src/libcharon/plugins/kernel_libipsec/Makefile.am
+           src/libcharon/plugins/doca/Makefile.am
            src/libcharon/plugins/kernel_netlink/.gitignore
            src/libcharon/plugins/kernel_netlink/Makefile.am
            src/libcharon/plugins/kernel_pfkey/Makefile.am
@@ -8531,6 +8536,7 @@ Files:     src/frontends/android/app/src/main/jni/libandroidbridge/backend/andro
            src/frontends/android/app/src/main/jni/libandroidbridge/kernel/android_net.c
            src/frontends/android/app/src/main/jni/libandroidbridge/kernel/network_manager.c
            src/libcharon/plugins/kernel_libipsec/kernel_libipsec_ipsec.c
+           src/libcharon/plugins/doca/doca_ipsec.c
 Copyright: 2012 Giuliano Grassi
            2012 Ralf Sager HSR Hochschule fuer Technik Rapperswil
            2012 Tobias Brunner
