@@ -14,16 +14,24 @@
 #include <sys/types.h>
 
 typedef struct private_doca_plugin_ipsec_t private_doca_plugin_ipsec_t;
-typedef struct private_ipsec_sa_attrs private_ipsec_sa_attrs;
-typedef struct doca_ipsec_policy doca_ipsec_policy;
+typedef struct private_ipsec_sa_attrs_t private_ipsec_sa_attrs_t;
+typedef struct doca_ipsec_policy_t doca_ipsec_policy_t;
 
-#define MAX_KEY_LEN 32							/* Maximal GCM key size is 256bit==32B */
-#define SALT_LENGTH 4							/* Salt length in bytes */
-#define DOCA_PLUGIN_DEFAULT_SOCKET_PATH "/tmp/strongswan_doca_socket"	/* Default socket path */
+/* Maximal GCM key size is 256bit==32B */
+#define MAX_KEY_LEN 32
 
+/* Salt length in bytes */
+#define SALT_LENGTH 4
+
+/* Default socket path */
+#define DOCA_PLUGIN_DEFAULT_SOCKET_PATH "/tmp/strongswan_doca_socket"
+
+/**
+ * Private variables and functions of doca_plugin_ipsec class.
+ */
 struct private_doca_plugin_ipsec_t {
 
-        /**
+	/**
 	 * Public doca_ipsec interface
 	 */
 	doca_plugin_ipsec_t public;
@@ -48,46 +56,96 @@ struct private_doca_plugin_ipsec_t {
 	 */
 	rng_t *rng;
 
-	/*
+	/**
 	 * Connection file descriptor
 	 */
 	int fd;
 };
 
-/* DOCA defined policy structure */
-struct doca_ipsec_policy {
+/**
+ * DOCA defined policy structure
+ */
+struct doca_ipsec_policy_t {
+	/** Policy message length */
 	uint32_t msg_length;
+
+	/** Policy source port */
 	uint16_t src_port;
+
+	/** Policy destination port */
 	uint16_t dst_port;
+
+	/** Policy L3 protocol */
 	uint8_t l3_protocol;
+
+	/** Policy L4 protocol */
 	uint8_t l4_protocol;
+
+	/** Policy outer L3 protocol, in tunnel mode */
 	uint8_t outer_l3_protocol;
+
+	/** Policy direction */
 	uint8_t policy_direction;
+
+	/** Policy mode */
 	uint8_t policy_mode;
+
+	/** Enable extended sequence numbers */
 	uint8_t esn;
+
+	/** ICV length */
 	uint8_t icv_length;
+
+	/** Encryption key type */
 	uint8_t key_type;
+
+	/** Security Parameter Index */
 	uint32_t spi;
+
+	/** Policy salt value */
 	uint32_t salt;
+
+	/** Policy source IP */
 	char src_ip_addr[INET6_ADDRSTRLEN + 1];
+
+	/** Policy destination IP */
 	char dst_ip_addr[INET6_ADDRSTRLEN + 1];
+
+	/** Policy outer source IP, in tunnel mode */
 	char outer_src_ip[INET6_ADDRSTRLEN + 1];
+
+	/** Policy outer destination IP, in tunnel mode */
 	char outer_dst_ip[INET6_ADDRSTRLEN + 1];
+
+	/** Policy encryption key */
 	uint8_t enc_key_data[MAX_KEY_LEN];
 } __attribute__((packed));
 
-/* Private IPSEC SA attributes */
-struct private_ipsec_sa_attrs {
-	uint32_t spi;		/* SA SPI */
-	uint16_t enc_alg;	/* Encryption Algorithm */
-	chunk_t enc_key;	/* Encryption key chunk */
-	ipsec_mode_t mode;	/* IPSEC mode */
-	bool esn;		/* if ESN enabled */
+/**
+ * Private IPSEC SA attributes
+ */
+struct private_ipsec_sa_attrs_t {
+	/** SA SPI */
+	uint32_t spi;
+
+	/** Encryption Algorithm */
+	uint16_t enc_alg;
+
+	/** Encryption key chunk */
+	chunk_t enc_key;
+
+	/** IPSEC mode */
+	ipsec_mode_t mode;
+
+	/** if ESN enabled */
+	bool esn;
 };
 
-/* Compare function for SPI map */
+/**
+ * Compare function for SPI map
+ */
 CALLBACK(sa_entry_equals, bool,
-	private_ipsec_sa_attrs *a, va_list args)
+	private_ipsec_sa_attrs_t *a, va_list args)
 {
 	uint32_t *spi;
 
@@ -96,52 +154,75 @@ CALLBACK(sa_entry_equals, bool,
 	return a->spi == *spi;
 }
 
-/* Helper function for printing the encryption key */
+/**
+ * Helper function for printing the encryption key
+ */
 static void
 print_enc_key(u_char *ptr, size_t len)
 {
 	char buffer[MAX_KEY_LEN + 1] = {0};
-	int idx = 0;
+	int idx;
 
-	for (idx = 0; idx < len; idx ++) {
-
+	for (idx = 0; idx < len; idx++)
+	{
 		if (' ' <= ptr[idx] && ptr[idx] <= '~')
+		{
 			buffer[idx] = ptr[idx];
+		}
 		else
+		{
 			buffer[idx] = '.';
+		}
 	}
 	DBG2(DBG_KNL, "%s", buffer);
 }
 
-/* For printing the policy struct after setting the attributes */
+/**
+ * For printing the policy struct after setting the attributes
+ */
 static void
-print_policy_attrs(struct doca_ipsec_policy *doca_policy, private_ipsec_sa_attrs *sa_attr)
+print_policy_attrs(struct doca_ipsec_policy_t *doca_policy,
+						private_ipsec_sa_attrs_t *sa_attr)
 {
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->msg_length %u", ntohl(doca_policy->msg_length));
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->l3_protocol %u == %s", doca_policy->l3_protocol, (doca_policy->l3_protocol == 6) ? "IPV6" : "IPV4");
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->l4_protocol %u == %s", doca_policy->l4_protocol, (doca_policy->l4_protocol == IPPROTO_UDP) ? "UDP" : "TCP");
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->src_ip_addr %s", doca_policy->src_ip_addr);
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->dst_ip_addr %s", doca_policy->dst_ip_addr);
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->src_port %u", ntohs(doca_policy->src_port));
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->dst_port %u", ntohs(doca_policy->dst_port));
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->policy_direction %u == %s", doca_policy->policy_direction, (doca_policy->policy_direction == 1) ? "OUT" : "IN");
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->policy_mode %u == %s", doca_policy->policy_mode, (doca_policy->policy_mode == 1) ? "TUNNEL" : "TRANSPORT");
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->msg_length %u",
+							ntohl(doca_policy->msg_length));
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->l3_protocol %u == %s",
+							doca_policy->l3_protocol, (doca_policy->l3_protocol == 6) ? "IPV6" : "IPV4");
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->l4_protocol %s",
+							(doca_policy->l4_protocol == IPPROTO_UDP) ? "UDP" : "TCP");
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->src_ip_addr %s",
+							doca_policy->src_ip_addr);
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->dst_ip_addr %s",
+							doca_policy->dst_ip_addr);
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->src_port %u",
+							ntohs(doca_policy->src_port));
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->dst_port %u",
+							ntohs(doca_policy->dst_port));
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->policy_direction %s",
+							(doca_policy->policy_direction == 1) ? "OUT" : "IN");
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->policy_mode %s",
+							(doca_policy->policy_mode == 1) ? "TUNNEL" : "TRANSPORT");
 	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->spi %u", ntohl(doca_policy->spi));
-	DBG2(DBG_KNL, "[DOCA][INFO] key length %u", (doca_policy->key_type + 1 ) * 16);
+	DBG2(DBG_KNL, "[DOCA][INFO] key length %u", (doca_policy->key_type + 1) * 16);
 	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->enc_key_data:");
 	print_enc_key(doca_policy->enc_key_data, sa_attr->enc_key.len - SALT_LENGTH);
 	DBG2(DBG_KNL, "[DOCA][INFO] sa_attr->enc_key:");
 	print_enc_key(sa_attr->enc_key.ptr, sa_attr->enc_key.len - SALT_LENGTH);
 	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->salt %u", ntohl(doca_policy->salt));
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->key_type %u", doca_policy->key_type == 1 ? 256 : 128);
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->key_type %u",
+							doca_policy->key_type == 1 ? 256 : 128);
 	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->esn %u", doca_policy->esn);
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->icv_length %u", doca_policy->icv_length);
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->outer_src_ip %s", doca_policy->outer_src_ip);
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->outer_dst_ip %s", doca_policy->outer_dst_ip);
-	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->outer_l3_protocol %s", (doca_policy->outer_l3_protocol == 4) ? "IPV4" : "IPV6" );
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->icv_length %u",
+							doca_policy->icv_length);
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->outer_src_ip %s",
+							doca_policy->outer_src_ip);
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->outer_dst_ip %s",
+							doca_policy->outer_dst_ip);
+	DBG2(DBG_KNL, "[DOCA][INFO] doca_policy->outer_l3_protocol %s",
+							(doca_policy->outer_l3_protocol == 4) ? "IPV4" : "IPV6");
 }
 
-/*
+/**
  * Used for the hash table of allocated SPIs
  */
 static bool spi_equals(uint32_t *spi, uint32_t *other_spi)
@@ -154,14 +235,19 @@ static u_int spi_hash(uint32_t *spi)
 	return chunk_hash(chunk_from_thing(*spi));
 }
 
-/* List entry destroy callback  */
+/**
+ * List entry destroy callback
+ */
 static void
-sa_entry_destroy(private_ipsec_sa_attrs *this)
+sa_entry_destroy(private_ipsec_sa_attrs_t *this)
 {
 	chunk_clear(&this->enc_key);
 }
 
-/* Parsing traffic selector address, address format: <IP_ADDR>/<NETMASK>[<L4_PROTO>/<PORT>] */
+/**
+ * Parsing traffic selector address, address format:
+ * 							<IP_ADDR>/<NETMASK>[<L4_PROTO>/<PORT>]
+ */
 static bool
 parse_ts_addr(char *ip_addr, char *addr, uint16_t *port)
 {
@@ -171,34 +257,42 @@ parse_ts_addr(char *ip_addr, char *addr, uint16_t *port)
 	char *ptr = strtok(ip_addr, delim);
 
 	array[i++] = ptr;
-	while(ptr != NULL)
+	while (ptr != NULL)
 	{
 		ptr = strtok(NULL, delim);
 		array[i++] = ptr;
 	}
+
 	if (array[0] == NULL || array[3] == NULL)
+	{
 		return false;
+	}
+
 	strcpy(addr, array[0]);
 	*port = htons(atoi(array[3]));
 	return true;
 }
 
-/* Convert enc algorithm to ICV length  */
+/**
+ * Convert enc algorithm to ICV length
+ */
 static int get_icv_length(uint16_t enc_alg, uint8_t *icv_len)
 {
-	switch (enc_alg) {
-	case ENCR_AES_GCM_ICV8:
-		*icv_len = 8;
-		return 0;
-	case ENCR_AES_GCM_ICV12:
-		*icv_len = 12;
-		return 0;
-	case ENCR_AES_GCM_ICV16:
-		*icv_len = 16;
-		return 0;
-	default:
-		DBG1(DBG_KNL,"[DOCA][ERR] the encryption algorithm isn't supported, should use AES GCM algorithms only");
-		return -1;
+	switch (enc_alg)
+	{
+		case ENCR_AES_GCM_ICV8:
+			*icv_len = 8;
+			return 0;
+		case ENCR_AES_GCM_ICV12:
+			*icv_len = 12;
+			return 0;
+		case ENCR_AES_GCM_ICV16:
+			*icv_len = 16;
+			return 0;
+		default:
+			DBG1(DBG_KNL, "[DOCA][ERR] the encryption algorithm isn't supported,"
+									"should use AES GCM algorithms only");
+			return -1;
 	}
 }
 
@@ -213,6 +307,7 @@ static bool allocate_spi(private_doca_plugin_ipsec_t *this, uint32_t spi)
 	{
 		return FALSE;
 	}
+
 	spi_alloc = malloc_thing(uint32_t);
 	*spi_alloc = spi;
 	this->allocated_spis->put(this->allocated_spis, spi_alloc, spi_alloc);
@@ -255,7 +350,7 @@ METHOD(kernel_ipsec_t, get_spi, status_t,
 		if (!this->rng)
 		{
 			this->mutex->unlock(this->mutex);
-			DBG1(DBG_KNL, "[DOCA][ERR] failed to create random number generators for SPI generation");
+			DBG1(DBG_KNL, "[DOCA][ERR] failed to create RNG for SPI generation");
 			return FAILED;
 		}
 	}
@@ -295,7 +390,7 @@ METHOD(kernel_ipsec_t, add_sa, status_t,
 {
 	DBG2(DBG_KNL, "[DOCA][INFO] Enter doca_plugin_ipsec add_sa");
 
-	private_ipsec_sa_attrs *sa_attr;
+	private_ipsec_sa_attrs_t *sa_attr;
 
 	INIT(sa_attr,
 		.spi = id->spi,
@@ -334,10 +429,11 @@ METHOD(kernel_ipsec_t, del_sa, status_t,
 	kernel_ipsec_del_sa_t *data)
 {
 	DBG2(DBG_KNL, "[DOCA][INFO] Enter doca_plugin_ipsec del_sa");
-	private_ipsec_sa_attrs *sa_attr = NULL;
+	private_ipsec_sa_attrs_t *sa_attr = NULL;
 
 	this->mutex->lock(this->mutex);
-	if (this->sas->find_first(this->sas, sa_entry_equals, (void**)&sa_attr, &id->spi))
+	if (this->sas->find_first(this->sas, sa_entry_equals, (void**)&sa_attr,
+										&id->spi))
 	{
 		chunk_free(&sa_attr->enc_key);
 		free(sa_attr);
@@ -358,36 +454,44 @@ METHOD(kernel_ipsec_t, add_policy, status_t,
 	kernel_ipsec_manage_policy_t *data)
 {
 	DBG2(DBG_KNL, "[DOCA][INFO] Enter doca_plugin_ipsec add_policy");
-	struct doca_ipsec_policy doca_policy = {0};
+	struct doca_ipsec_policy_t doca_policy = {0};
 	char ts_src[INET6_ADDRSTRLEN] = "";
 	char ts_dst[INET6_ADDRSTRLEN] = "";
 	char host_src[INET6_ADDRSTRLEN] = "";
 	char host_dst[INET6_ADDRSTRLEN] = "";
-	private_ipsec_sa_attrs *sa_attr = NULL;
+	private_ipsec_sa_attrs_t *sa_attr = NULL;
 	uint16_t port = 0;
 	uint8_t icv_len;
+	ssize_t num_bytes_sent = 0;
 
 	this->mutex->lock(this->mutex);
-	if (!this->sas->find_first(this->sas, sa_entry_equals, (void**)&sa_attr, &data->sa->esp.spi)) {
+	if (!this->sas->find_first(this->sas, sa_entry_equals, (void**)&sa_attr,
+										&data->sa->esp.spi))
+	{
 		DBG1(DBG_KNL, "[DOCA][ERR] failed to find the policy SA in the table");
 		this->mutex->unlock(this->mutex);
 		return FAILED;
 	}
 	this->mutex->unlock(this->mutex);
 
-	/* Set policy message length, msg length is not included in policy record size */
-	doca_policy.msg_length = htonl(sizeof(struct doca_ipsec_policy) - sizeof(doca_policy.msg_length));
+	/* Set policy message length,
+	 * msg length is not included in policy record size
+	 */
+	doca_policy.msg_length = htonl(sizeof(struct doca_ipsec_policy_t)
+									- sizeof(doca_policy.msg_length));
 
 	/* Ports and IP addresses extraction */
 	snprintf(ts_src, INET6_ADDRSTRLEN, "%R", id->src_ts);
 	snprintf(ts_dst, INET6_ADDRSTRLEN, "%R", id->dst_ts);
 
-	if (!parse_ts_addr(ts_src, doca_policy.src_ip_addr, &port)) {
+	if (!parse_ts_addr(ts_src, doca_policy.src_ip_addr, &port))
+	{
 		DBG1(DBG_KNL, "[DOCA][ERR] Failed to parse inner source ip address");
 		return FAILED;
 	}
 	doca_policy.src_port = port;
-	if (!parse_ts_addr(ts_dst, doca_policy.dst_ip_addr, &port)) {
+	if (!parse_ts_addr(ts_dst, doca_policy.dst_ip_addr, &port))
+	{
 		DBG1(DBG_KNL, "[DOCA][ERR] Failed to parse inner destination ip address");
 		return FAILED;
 	}
@@ -397,9 +501,11 @@ METHOD(kernel_ipsec_t, add_policy, status_t,
 	snprintf(doca_policy.outer_dst_ip, INET6_ADDRSTRLEN, "%H", data->dst);
 
 	/* Protocols extraction */
-	doca_policy.l3_protocol = (id->src_ts->get_type(id->src_ts) == TS_IPV4_ADDR_RANGE)? 4 : 6;
+	doca_policy.l3_protocol = (id->src_ts->get_type(id->src_ts)
+								== TS_IPV4_ADDR_RANGE)? 4 : 6;
 	doca_policy.l4_protocol = id->src_ts->get_protocol(id->src_ts);
-	doca_policy.outer_l3_protocol = data->src->get_family(data->src) == AF_INET6 ? 6 : 4;
+	doca_policy.outer_l3_protocol = data->src->get_family(data->src)
+								== AF_INET6 ? 6 : 4;
 
 	/* Policy attributes */
 	doca_policy.policy_direction = (uint8_t) id->dir;
@@ -407,29 +513,42 @@ METHOD(kernel_ipsec_t, add_policy, status_t,
 
 	/* SA attributes */
 	if (get_icv_length(sa_attr->enc_alg, &icv_len) < 0)
+	{
 		return FAILED;
+	}
+
 	doca_policy.esn = sa_attr->esn ? 1 : 0;
 	doca_policy.icv_length = icv_len;
-	doca_policy.key_type = ((sa_attr->enc_key.len - SALT_LENGTH) * 8 == 128) ? 0 : 1;
+	doca_policy.key_type = ((sa_attr->enc_key.len - SALT_LENGTH) * 8 == 128)
+										? 0 : 1;
 	doca_policy.spi = htonl(sa_attr->spi);
-	doca_policy.salt = htonl(*((uint32_t *) (sa_attr->enc_key.ptr + (sa_attr->enc_key.len - SALT_LENGTH))));	/* SALT placed at the last 32bits in enc_key */
-	memcpy(doca_policy.enc_key_data, sa_attr->enc_key.ptr, sa_attr->enc_key.len - SALT_LENGTH);
+
+	/* SALT placed at the last 32bits in enc_key */
+	doca_policy.salt = htonl(*((uint32_t *)
+			(sa_attr->enc_key.ptr + (sa_attr->enc_key.len - SALT_LENGTH))));
+	memcpy(doca_policy.enc_key_data, sa_attr->enc_key.ptr,
+								sa_attr->enc_key.len - SALT_LENGTH);
 
 	print_policy_attrs(&doca_policy, sa_attr);
 
-	ssize_t num = 0;
-
-	while(1) {
+	while (1)
+	{
 		this->mutex->lock(this->mutex);
-		num += send(this->fd, (char *) (&doca_policy + num), sizeof(doca_policy) - num, 0);
+		num_bytes_sent += send(this->fd, (char *) (&doca_policy + num_bytes_sent),
+					sizeof(doca_policy) - num_bytes_sent, 0);
 		this->mutex->unlock(this->mutex);
-		if (num == sizeof(doca_policy)) {
+		if (num_bytes_sent == sizeof(doca_policy))
+		{
 			DBG2(DBG_KNL, "[DOCA][INFO] Message was sent successfully");
 			break;
-		} else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+		}
+		else if (errno == EAGAIN || errno == EWOULDBLOCK)
+		{
 			DBG2(DBG_KNL, "[DOCA][INFO] Failed to send the message, trying again");
 			continue;
-		} else {
+		}
+		else
+		{
 			return FAILED;
 		}
 	}
@@ -509,7 +628,7 @@ doca_plugin_ipsec_t *doca_plugin_ipsec_create()
 				.get_features = _get_features,
 				.get_spi = _get_spi,
 				.get_cpi = _get_cpi,
-				.add_sa  = _add_sa,
+				.add_sa = _add_sa,
 				.update_sa = _update_sa,
 				.query_sa = _query_sa,
 				.del_sa = _del_sa,
@@ -524,14 +643,18 @@ doca_plugin_ipsec_t *doca_plugin_ipsec_create()
 			},
 		},
 		.sas = linked_list_create(),
-		.allocated_spis = hashtable_create((hashtable_hash_t)spi_hash, (hashtable_equals_t)spi_equals, 16),
+		.allocated_spis = hashtable_create((hashtable_hash_t)spi_hash,
+										(hashtable_equals_t)spi_equals, 16),
 		.mutex = mutex_create(MUTEX_TYPE_DEFAULT),
 	);
 
 	/* Get socket path from doca opt file */
-	socket_path = lib->settings->get_str(lib->settings, "%s.plugins.doca.socket_path", NULL, lib->ns);
-	if (socket_path == NULL) {
-		DBG1(DBG_KNL, "[DOCA][WARN] Failed to get socket path from the .opt file, using %s instead", DOCA_PLUGIN_DEFAULT_SOCKET_PATH);
+	socket_path = lib->settings->get_str(lib->settings,
+							"%s.plugins.doca.socket_path",NULL, lib->ns);
+	if (socket_path == NULL)
+	{
+		DBG1(DBG_KNL, "[DOCA][WARN] Failed to get socket path from the .opt file,"
+								"using %s instead", DOCA_PLUGIN_DEFAULT_SOCKET_PATH);
 		socket_path = DOCA_PLUGIN_DEFAULT_SOCKET_PATH;
 	}
 
@@ -541,14 +664,16 @@ doca_plugin_ipsec_t *doca_plugin_ipsec_create()
 
 	/* Create a Unix domain socket */
 	this->fd = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (this->fd == -1) {
+	if (this->fd == -1)
+	{
 		DBG1(DBG_KNL, "[DOCA][ERR] Failed to create a socket");
 		return NULL;
 	}
 
 	/* Connect to the server */
 	result = connect(this->fd, (struct sockaddr*)&addr, sizeof(addr));
-	if (result == -1) {
+	if (result == -1)
+	{
 		DBG1(DBG_KNL, "[DOCA][ERR] Failed connecting to the socket");
 		return NULL;
 	}

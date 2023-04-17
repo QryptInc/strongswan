@@ -242,7 +242,7 @@ ARG_ENABL_SET([xauth-eap],      [enable XAuth backend using EAP methods to verif
 ARG_ENABL_SET([xauth-pam],      [enable XAuth backend using PAM to verify passwords.])
 ARG_ENABL_SET([xauth-noauth],   [enable XAuth pseudo-backend that does not actually verify or even request any credentials.])
 # kernel interfaces / sockets
-ARG_ENABL_SET([doca], 	        [enables the DOCA IPSEC plugin.])
+ARG_ENABL_SET([doca], 	        [enable the DOCA IPSEC plugin.])
 ARG_DISBL_SET([kernel-netlink], [disable the netlink kernel interface.])
 ARG_ENABL_SET([kernel-pfkey],   [enable the PF_KEY kernel interface.])
 ARG_ENABL_SET([kernel-pfroute], [enable the PF_ROUTE kernel interface.])

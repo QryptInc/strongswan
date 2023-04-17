@@ -40,12 +40,11 @@ METHOD(plugin_t, destroy, void,
 	free(this);
 }
 
-/*
+/**
  * see header file
  */
 plugin_t *doca_plugin_create()
 {
-	DBG1(DBG_LIB, "[DOCA][INFO] Enter doca_plugin_create()");
 	private_doca_plugin_t *this;
 
 	INIT(this,

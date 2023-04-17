@@ -45,7 +45,7 @@ cp -f systemd-conf/strongswan-starter.service.in.centos init/systemd-starter/str
 	--prefix=%{_prefix} \
 	--sysconfdir=%{_sysconfdir} \
 	--enable-systemd \
-  --enable-doca
+	--enable-doca
 %make_build
 
 %install
