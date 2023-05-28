@@ -3,7 +3,7 @@ AM_CPPFLAGS = \
         -I$(top_srcdir)/src/libstrongswan \
         -I$(top_srcdir)/src/libcharon
 
-AM_CFLAGS = -Wno-sign-compare -rdynamic -Wextra $(PLUGIN_CFLAGS) -Wall -W -Wno-unused-parameter -Wno-unused-variable -Wno-format
+AM_CFLAGS = $(PLUGIN_CFLAGS)
 
 if MONOLITHIC
 noinst_LTLIBRARIES = libstrongswan-doca.la
