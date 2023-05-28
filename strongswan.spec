@@ -58,9 +58,7 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls
 %if 0%{?rhel} == 8
 	cp -f openssl-conf/CentOS8/openssl.cnf $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx
 %endif
-
-if [ -z $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx ]
-then
+if [ ! -f $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx ]; then
     cp -f openssl-conf/CentOS8/openssl.cnf $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx
 fi
 
