@@ -521,7 +521,8 @@ METHOD(kernel_ipsec_t, add_policy, status_t,
 	doca_policy.icv_length = icv_len;
 	doca_policy.key_type = ((sa_attr->enc_key.len - SALT_LENGTH) * 8 == 128)
 										? 0 : 1;
-	doca_policy.spi = htonl(sa_attr->spi);
+	/* SPI is already in network order */
+	doca_policy.spi = sa_attr->spi;
 
 	/* SALT placed at the last 32bits in enc_key */
 	doca_policy.salt = htonl(*((uint32_t *)
