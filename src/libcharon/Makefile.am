@@ -580,6 +580,13 @@ if MONOLITHIC
 endif
 endif
 
+if USE_DOCA
+  SUBDIRS += plugins/doca
+if MONOLITHIC
+  libcharon_la_LIBADD += plugins/doca/libstrongswan-doca.la
+endif
+endif
+
 if USE_KERNEL_LIBIPSEC
   SUBDIRS += plugins/kernel_libipsec
 if MONOLITHIC

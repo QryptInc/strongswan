@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+cp -f /etc/ssl/openssl.cnf.orig /etc/ssl/openssl.cnf
+systemctl disable strongswan-starter.service
+
+#DEBHELPER#
+
+exit 0

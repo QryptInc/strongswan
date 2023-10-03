@@ -6,9 +6,11 @@ AM_CPPFLAGS = \
 	-DPLUGINS="\"${scripts_plugins}\""
 
 noinst_PROGRAMS = bin2array bin2sql id2sql key2keyid keyid2sql oid2der \
-	thread_analysis dh_speed pubkey_speed crypt_burn hash_burn fetch \
+	thread_analysis crypt_burn hash_burn fetch \
 	dnssec malloc_speed aes-test settings-test timeattack nist_kem_kat \
 	nist_sig_kat
+
+bin_PROGRAMS = dh_speed pubkey_speed
 
 if USE_TLS
   noinst_PROGRAMS += tls_test

@@ -1,0 +1,5 @@
+charon.plugins.doca.load := yes
+	Whether to load the plugin.
+
+charon.plugins.doca.socket_path = /tmp/policy_socket
+	Path to DOCA socket.

@@ -32,6 +32,23 @@ AM_INIT_AUTOMAKE(m4_esyscmd([
 		*) echo serial-tests;;
 	esac
 ]))
+
+# backwards compat with older pkg-config
+# - pull in AC_DEFUN from pkg.m4
+m4_ifndef([PKG_CHECK_VAR], [
+# PKG_CHECK_VAR(VARIABLE, MODULE, CONFIG-VARIABLE,
+# [ACTION-IF-FOUND], [ACTION-IF-NOT-FOUND])
+# -------------------------------------------
+# Retrieves the value of the pkg-config variable for the given module.
+AC_DEFUN([PKG_CHECK_VAR],
+[AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
+AC_ARG_VAR([$1], [value of $3 for $2, overriding pkg-config])dnl
+_PKG_CONFIG([$1], [variable="][$3]["], [$2])
+AS_VAR_COPY([$1], [pkg_cv_][$1])
+AS_VAR_IF([$1], [""], [$5], [$4])dnl
+])# PKG_CHECK_VAR
+])
+
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_CONFIG_MACRO_DIR([m4/config])
 AC_CONFIG_HEADERS([config.h])
@@ -225,6 +242,7 @@ ARG_ENABL_SET([xauth-eap],      [enable XAuth backend using EAP methods to verif
 ARG_ENABL_SET([xauth-pam],      [enable XAuth backend using PAM to verify passwords.])
 ARG_ENABL_SET([xauth-noauth],   [enable XAuth pseudo-backend that does not actually verify or even request any credentials.])
 # kernel interfaces / sockets
+ARG_ENABL_SET([doca],           [enable the DOCA IPsec plugin.])
 ARG_DISBL_SET([kernel-netlink], [disable the netlink kernel interface.])
 ARG_ENABL_SET([kernel-pfkey],   [enable the PF_KEY kernel interface.])
 ARG_ENABL_SET([kernel-pfroute], [enable the PF_ROUTE kernel interface.])
@@ -372,6 +390,7 @@ AC_SUBST(PLUGIN_CFLAGS)
 AC_PROG_CC
 AM_PROG_CC_C_O
 
+m4_pattern_allow([AC_LIB_PREFIX])
 AC_LIB_PREFIX
 AC_C_BIGENDIAN
 
@@ -424,6 +443,10 @@ fi
 
 if test x$xauth_generic_given = xfalse -a x$ikev1 = xfalse; then
 	xauth_generic=false;
+fi
+
+if test x$doca = xtrue; then
+  doca=true;
 fi
 
 if test x$kernel_libipsec = xtrue; then
@@ -1599,6 +1622,7 @@ ADD_PLUGIN([sqlite],               [s charon pool manager medsrv attest])
 ADD_PLUGIN([attr],                 [c charon])
 ADD_PLUGIN([attr-sql],             [c charon])
 ADD_PLUGIN([load-tester],          [c charon])
+ADD_PLUGIN([doca],                 [c charon starter cmd])
 ADD_PLUGIN([kernel-libipsec],      [c charon cmd])
 ADD_PLUGIN([kernel-wfp],           [c charon])
 ADD_PLUGIN([kernel-iph],           [c charon])
@@ -1760,6 +1784,7 @@ AM_CONDITIONAL(USE_FRODO, test x$frodo = xtrue)
 
 #  charon plugins
 # ----------------
+AM_CONDITIONAL(USE_DOCA, test x$doca = xtrue)
 AM_CONDITIONAL(USE_STROKE, test x$stroke = xtrue)
 AM_CONDITIONAL(USE_VICI, test x$vici = xtrue)
 AM_CONDITIONAL(USE_MEDSRV, test x$medsrv = xtrue)
@@ -2118,6 +2143,7 @@ AC_CONFIG_FILES([
 	src/libcharon/plugins/uci/Makefile
 	src/libcharon/plugins/ha/Makefile
 	src/libcharon/plugins/kernel_netlink/Makefile
+  src/libcharon/plugins/doca/Makefile
 	src/libcharon/plugins/kernel_pfkey/Makefile
 	src/libcharon/plugins/kernel_pfroute/Makefile
 	src/libcharon/plugins/kernel_libipsec/Makefile
