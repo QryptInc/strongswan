@@ -1,0 +1,38 @@
+Source: strongswan
+Section: net
+Priority: optional
+Maintainer: Mellanox Technologies <support@mellanox.com>
+Build-Depends: debhelper (>=11~),
+               dh-autoreconf,
+               bison,
+               bzip2,
+               flex,
+               gperf,
+               pkg-config,
+               libtool,
+               gettext,
+               libgmp-dev,
+               perl,
+               python2,
+               libssl-dev,
+               libsystemd-dev
+Standards-Version: 4.1.4
+Homepage: http://www.strongswan.org
+
+Package: strongswan
+Architecture: arm64
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: IPsec VPN solution package
+ The strongSwan VPN suite uses the native IPsecstack in standard linux
+ kernel. It supports both IKEv1 and IKEv2 protocols.
+ This package contains all the libraries and binaries required
+ to maintain IKEv1 and IKEv2 connections.
+
+Package: strongswan-swanctl
+Architecture: any
+Description: strongSwan IPsec client, swanctl command
+ The strongSwan VPN suite uses the native IPsec stack in the standard
+ Linux kernel. It supports both the IKEv1 and IKEv2 protocols.
+ .
+ This package contains the swanctl interface, used to configure a running
+ charon daemon

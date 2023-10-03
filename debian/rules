@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+
+# Strip Wformat CFLAGS
+# Wformat flags checks for the correctness of printf/fprintf/sfprintf...
+# Since strongSwan defines its own printf/fprintf/sfprintf... we can skip these checks
+export DEB_CFLAGS_MAINT_STRIP=-Wformat -Werror=format-security
+
+%:
+	dh $@ --with autoreconf
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
+
+override_dh_autoreconf:
+	dh_autoreconf -- ./autogen.sh
+
+override_dh_auto_configure:
+	./configure --prefix=/usr --sysconfdir=/etc --enable-openssl --disable-random --enable-systemd --enable-doca
+
+override_dh_auto_build:
+	make -j$(NJOBS)
+
+override_dh_auto_test:
+
+
+override_dh_auto_install:
+	dh_auto_install
+	dh_install -p strongswan --sourcedir=debian/tmp/ etc/
+	dh_install -p strongswan --sourcedir=debian/tmp/ lib/
+	dh_install -p strongswan --sourcedir=debian/tmp/ usr/
+	mkdir -p debian/strongswan/etc/ssl
+	mkdir -p debian/strongswan/etc/swanctl/conf.d
+	./install-config
