@@ -3,6 +3,7 @@ set -e
 
 cp -f /etc/ssl/openssl.cnf.orig /etc/ssl/openssl.cnf
 systemctl disable strongswan-starter.service
+systemctl disable strongswan.service
 
 #DEBHELPER#
 
