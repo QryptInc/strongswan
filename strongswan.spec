@@ -69,10 +69,13 @@ cp -f mlnx-conf/BFR.swanctl.conf $RPM_BUILD_ROOT%{_sysconfdir}/swanctl/conf.d
 %preun
 cp -f /etc/pki/tls/openssl.cnf.orig /etc/pki/tls/openssl.cnf
 systemctl disable strongswan-starter.service
+systemctl disable strongswan.service
 
 %post
 cp -f /etc/pki/tls/openssl.cnf /etc/pki/tls/openssl.cnf.orig
-systemctl enable strongswan-starter.service
+# Use the strongswan.service instead of the legacy strongswan-starter
+# systemctl enable strongswan-starter.service
+systemctl enable strongswan.service
 
 %files
 %defattr(-, root, root)
