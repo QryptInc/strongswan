@@ -37,6 +37,7 @@ Linux Kernel.
 %prep
 %setup
 cp -f systemd-conf/strongswan-starter.service.in.centos init/systemd-starter/strongswan-starter.service.in
+cp -f systemd-conf/strongswan.service.in.centos init/systemd/strongswan.service.in
 
 %build
 %configure \
