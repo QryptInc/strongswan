@@ -4,10 +4,7 @@ After=network-online.target
 
 [Service]
 Type=notify
-ExecStartPre=/bin/cp -f /etc/ssl/openssl.cnf.orig /etc/ssl/openssl.cnf
 ExecStart=@SBINDIR@/charon-systemd
-ExecStartPost=/bin/sleep 2
-ExecStartPost=/bin/bash -c 'if lscpu | grep Flags | grep sha1 | grep sha2 | grep -q aes 2>/dev/null; then /bin/cp -f /etc/ssl/openssl.cnf.mlnx /etc/ssl/openssl.cnf; fi'
 ExecStartPost=@SBINDIR@/swanctl --load-all --noprompt
 ExecReload=@SBINDIR@/swanctl --reload
 ExecReload=@SBINDIR@/swanctl --load-all --noprompt
