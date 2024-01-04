@@ -735,6 +735,7 @@ METHOD(plugin_t, destroy, void,
 #ifndef OPENSSL_IS_BORINGSSL
 	CONF_modules_free();
 	OBJ_cleanup();
+	openssl_engine_deinit();
 #endif
 	EVP_cleanup();
 	openssl_engine_deinit();
@@ -815,6 +816,7 @@ plugin_t *openssl_plugin_create()
 	 * as we couldn't initialize the library again afterwards */
 	OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG |
 						OPENSSL_INIT_ENGINE_ALL_BUILTIN, NULL);
+	openssl_engine_init();
 #else /* OPENSSL_VERSION_NUMBER */
 	threading_init();
 #ifndef OPENSSL_IS_BORINGSSL
