@@ -3,10 +3,7 @@ Description=strongSwan IPsec IKEv1/IKEv2 daemon using ipsec.conf
 After=syslog.target network-online.target
 
 [Service]
-ExecStartPre=/bin/cp -f /etc/pki/tls/openssl.cnf.orig /etc/pki/tls/openssl.cnf
 ExecStart=@SBINDIR@/@IPSEC_SCRIPT@ start --nofork
-ExecStartPost=/bin/sleep 2
-ExecStartPost=/bin/bash -c 'if lscpu | grep Flags | grep sha1 | grep sha2 | grep -q aes 2>/dev/null; then /bin/cp -f /etc/pki/tls/openssl.cnf.mlnx /etc/pki/tls/openssl.cnf; fi'
 StandardOutput=syslog
 Restart=on-abnormal
 

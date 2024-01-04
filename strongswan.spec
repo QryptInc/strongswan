@@ -52,28 +52,15 @@ cp -f systemd-conf/strongswan.service.in.centos init/systemd/strongswan.service.
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls
-%if 0%{?rhel} == 7
-	cp -f openssl-conf/CentOS7/openssl.cnf $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx
-%endif
-%if 0%{?rhel} == 8
-	cp -f openssl-conf/CentOS8/openssl.cnf $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx
-%endif
-if [ ! -f $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx ]; then
-    cp -f openssl-conf/CentOS8/openssl.cnf $RPM_BUILD_ROOT%{_sysconfdir}/pki/tls/openssl.cnf.mlnx
-fi
 
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/etc/swanctl/conf.d
 cp -f mlnx-conf/BFL.swanctl.conf $RPM_BUILD_ROOT%{_sysconfdir}/swanctl/conf.d
 cp -f mlnx-conf/BFR.swanctl.conf $RPM_BUILD_ROOT%{_sysconfdir}/swanctl/conf.d
 
 %preun
-cp -f /etc/pki/tls/openssl.cnf.orig /etc/pki/tls/openssl.cnf
 systemctl disable strongswan-starter.service
-systemctl disable strongswan.service
 
 %post
-cp -f /etc/pki/tls/openssl.cnf /etc/pki/tls/openssl.cnf.orig
 # Use the strongswan.service instead of the legacy strongswan-starter
 # systemctl enable strongswan-starter.service
 systemctl enable strongswan.service

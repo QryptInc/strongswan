@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-cp -f /etc/ssl/openssl.cnf /etc/ssl/openssl.cnf.orig
 # Use the new strongswan.service instead of the legacy strongswan-starter
 # systemctl unmask strongswan-starter.service
 # systemctl enable strongswan-starter.service
