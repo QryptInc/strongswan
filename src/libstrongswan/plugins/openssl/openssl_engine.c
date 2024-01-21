@@ -184,7 +184,9 @@ private_key_t *openssl_private_key_connect(key_type_t type, va_list args)
  */
 void openssl_engine_deinit()
 {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 	ENGINE_cleanup();
+#endif
 }
 
 /*
@@ -196,10 +198,10 @@ void openssl_engine_init()
         /* activate support for hardware accelerators */
         ENGINE_load_builtin_engines();
         ENGINE_register_all_complete();
-#else
-	ENGINE *e = ENGINE_by_id("pka");
-	if (e)
-		ENGINE_register_complete(e);
+// #else
+// 	ENGINE *e = ENGINE_by_id("pka");
+// 	if (e)
+// 		ENGINE_register_complete(e);
 #endif
 }
 
