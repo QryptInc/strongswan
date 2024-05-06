@@ -33,7 +33,7 @@ git checkout 6.0.0beta4-qrypt-plugins
 ## Edit the plugin conf files
 Create a free account at https://docs.qrypt.com/getting_started/ This will enable you to generate JSON web tokens (JWT) that you'll need to add to the conf files.
 
-strongswan/src/libstrongswan/plugins/quantum_entropy/quantum_entropy.conf:
+strongswan/src/libstrongswan/plugins/quantum_entropy/quantum-entropy.conf:
 ```
 quantum_entropy {
     # Entropy API FQDN
@@ -88,11 +88,18 @@ cd ../../../..
 Copy Qrypt's libraries to the proper location
 ```
 cd src/libstrongswan/plugins/blast/
-make install-deps
-ldconfig
+sudo make install-deps
+sudo ldconfig
 make SWANDIR=../../../..
 sudo make install PLUGINCONF=/etc/strongswan.d/charon/
 cd ../../../..
 ```
 
 Set  accept_private_algs = yes in /usr/local/etc/strongswan.conf
+
+## Start and stop service
+```
+sudo systemctl status strongswan.service
+sudo systemctl start strongswan.service
+sudo systemctl stop strongswan.service
+```

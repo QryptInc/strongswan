@@ -35,7 +35,7 @@ quantum_entropy.so: quantum_entropy_rng.c quantum_entropy_plugin.c base64.c
 
 install: quantum_entropy.so quantum_entropy.conf
 	cp quantum_entropy.so $(SWANPLUGINS)/libstrongswan-quantum_entropy.so
-	cp quantum_entropy.conf $(PLUGINCONF)
+	cp quantum-entropy.conf $(PLUGINCONF)
 
 clean:
 	rm -f *.so *.o
