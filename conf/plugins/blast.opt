@@ -1,0 +1,2 @@
+charon.plugins.blast.jwt = 
+    Blast API JWT

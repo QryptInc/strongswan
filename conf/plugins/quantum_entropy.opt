@@ -1,0 +1,8 @@
+charon.plugins.quantum_entropy.fqdn = 
+    Entropy API FQDN
+
+charon.plugins.quantum_entropy.jwt = 
+    Entropy API JWT
+
+charon.plugins.quantum_entropy.random = 
+    File to read local random bytes for xor with downloaded entropy

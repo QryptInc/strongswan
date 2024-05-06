@@ -31,6 +31,7 @@ plugins = \
 	plugins/android_log.opt \
 	plugins/attr.opt \
 	plugins/attr-sql.opt \
+	plugins/blast.opt \
 	plugins/botan.opt \
 	plugins/bypass-lan.opt \
 	plugins/certexpire.opt \
@@ -80,6 +81,7 @@ plugins = \
 	plugins/osx-attr.opt \
 	plugins/p-cscf.opt \
 	plugins/pkcs11.opt \
+	plugins/quantum-entropy.opt \
 	plugins/radattr.opt \
 	plugins/random.opt \
 	plugins/resolve.opt \
