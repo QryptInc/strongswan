@@ -33,7 +33,7 @@ quantum_entropy.so: quantum_entropy_rng.c quantum_entropy_plugin.c base64.c
 	$(CC) -fPIC -c base64.c -o base64.o  $(CFLAGS)
 	gcc -shared -o $@ quantum_entropy_rng.o quantum_entropy_plugin.o base64.o $(LDFLAGS)
 
-install: quantum_entropy.so quantum_entropy.conf
+install: quantum_entropy.so quantum-entropy.conf
 	cp quantum_entropy.so $(SWANPLUGINS)/libstrongswan-quantum_entropy.so
 	cp quantum-entropy.conf $(PLUGINCONF)
 

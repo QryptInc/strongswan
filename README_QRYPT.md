@@ -1,4 +1,4 @@
-# Build strongSwan with liboqs and Qrypt's blast and entropy plugins
+# Build strongSwan with liboqs and Qrypt's BLAST and quantum entropy plugins
 ## Create a directory to clone the repos into
 ```
 mkdir qrypt
@@ -27,7 +27,7 @@ cd ../../
 ```
 git clone https://github.com/QryptInc/strongswan.git
 cd strongswan
-git checkout 6.0.0beta4-qrypt-plugins
+git checkout BF-6.0.0beta4-qrypt-plugins
 ```
 
 ## Edit the plugin conf files
@@ -85,7 +85,9 @@ cd ../../../..
 ```
 
 ## Build Qrypt's BLAST plugin
-Copy Qrypt's libraries to the proper location
+Retrieve Qrypt's SDK library from the Qrypt Portal from "Products->Qrypt SDK". Copy the libQryptSecurity.so and 
+libQryptSecurityC.so ibraries to src/libstrongswan/plugins/blast/. Then, proceed with the following instructions.
+
 ```
 cd src/libstrongswan/plugins/blast/
 sudo make install-deps
@@ -95,11 +97,11 @@ sudo make install PLUGINCONF=/etc/strongswan.d/charon/
 cd ../../../..
 ```
 
-Set  accept_private_algs = yes in /usr/local/etc/strongswan.conf
 
 ## Start and stop service
 ```
-sudo systemctl status strongswan.service
-sudo systemctl start strongswan.service
+sudo systemctl daemon-reload
 sudo systemctl stop strongswan.service
+sudo systemctl start strongswan.service
+sudo systemctl status strongswan.service
 ```
