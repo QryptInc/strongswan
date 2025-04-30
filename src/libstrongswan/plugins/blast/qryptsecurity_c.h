@@ -69,6 +69,17 @@ typedef struct {
     /// Absolute path to a CA Root Certificate for use with libCurl
     /// </summary>
     char* ca_cert_path;
+
+    /// <summary>
+    /// List of domain names to use as QDEA sources. If not set, the directory service will be queried.
+    /// </summary>
+    char** static_servers;
+    int static_servers_count;
+
+    /// <summary>
+    /// API Key
+    /// </summary>
+    char* api_key;
 } client_config_t;
 
 /// <summary>

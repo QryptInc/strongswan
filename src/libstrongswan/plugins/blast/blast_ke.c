@@ -1,6 +1,7 @@
 #include "blast_ke.h"
 #include "qryptsecurity_c.h"
 #include <library.h>
+#include <lexparser.h>
 #include <utils/debug.h>
 
 typedef struct private_blast_ke_t private_blast_ke_t;
@@ -277,10 +278,55 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		return NULL;
 	}
 
-	ret_code = qrypt_security_initialize(&this->qrypt_security, token, token_length);
+	chunk_t servers = chunk_empty;
+	int count = 0;
+	char *serverlist[20] = {0};
+	char *serverfile = lib->settings->get_str(lib->settings, "%s.plugins.blast.serverfile", NULL, lib->ns);
+	if (serverfile == NULL) {
+		DBG1(DBG_LIB, "serverfile not set! skipping...\n");
+		// NOT fatal, just don't load servers
+	} else {
+		// Open file, read lines, split lines, write as array, set 
+		chunk_t *servers_orig = chunk_map(serverfile, 'r');
+		servers = chunk_create_clone(malloc(servers_orig->len + 1), *servers_orig);
+		chunk_unmap(servers_orig);
+
+		chunk_t parsing = servers;
+		for (chunk_t line = chunk_empty; fetchline(&parsing, &line) && count < 20;) {
+			if(line.len == 0) {
+				break;
+			}
+			DBG1(DBG_LIB, "server %.*s loaded\n", line.len, line.ptr);
+
+			// Null terminate
+			char *one_past_last = line.ptr + line.len;
+			if (one_past_last < servers.ptr + servers.len) {
+				one_past_last[0] = '\0';
+			}
+
+			// Add to list of servers
+			serverlist[count++] = line.ptr;
+		}
+	}
+	char *api_key = lib->settings->get_str(lib->settings, "%s.plugins.blast.api_key", NULL, lib->ns);
+	if (api_key == NULL) {
+		DBG1(DBG_LIB, "api_key not set\n");
+		// NOT fatal, just don't use
+	}
+	client_config_t client_config = {
+		.static_servers = serverlist,
+		.static_servers_count = count,
+		.api_key = api_key
+	};
+
+	ret_code = qrypt_security_initialize_client_config(&this->qrypt_security, token, token_length, client_config);
 	if ( ret_code != QS_GOOD ) {
 		DBG1(DBG_LIB, "Error: qrypt_security_initialize returned %d", ret_code);
 		return NULL;
+	}
+
+	if (serverlist.ptr != NULL) {
+		chunk_free(serverlist);
 	}
 
 	DBG2(DBG_LIB, "Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
