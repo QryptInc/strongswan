@@ -1,7 +1,7 @@
 #include "blast_ke.h"
 #include "qryptsecurity_c.h"
 #include <library.h>
-#include <lexparser.h>
+#include <utils/lexparser.h>
 #include <utils/debug.h>
 
 typedef struct private_blast_ke_t private_blast_ke_t;
@@ -299,13 +299,13 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 			DBG1(DBG_LIB, "server %.*s loaded\n", line.len, line.ptr);
 
 			// Null terminate
-			char *one_past_last = line.ptr + line.len;
+			unsigned char *one_past_last = line.ptr + line.len;
 			if (one_past_last < servers.ptr + servers.len) {
 				one_past_last[0] = '\0';
 			}
 
 			// Add to list of servers
-			serverlist[count++] = line.ptr;
+			serverlist[count++] = (char *)line.ptr;
 		}
 	}
 	char *api_key = lib->settings->get_str(lib->settings, "%s.plugins.blast.api_key", NULL, lib->ns);
@@ -325,8 +325,8 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		return NULL;
 	}
 
-	if (serverlist.ptr != NULL) {
-		chunk_free(serverlist);
+	if (servers.ptr != NULL) {
+		chunk_free(&servers);
 	}
 
 	DBG2(DBG_LIB, "Exit %s, %s (%d)", __func__, __FILE__, __LINE__);

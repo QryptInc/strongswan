@@ -89,6 +89,7 @@ static bool quantum_entropy_chunk(private_quantum_entropy_rng_t *this, chunk_t c
 {
 	char *token;
 	char *fqdn;
+	char *api_key;
 	chunk_t response_chunk;
 	uint8_t *binary_quantum_entropy;
 	size_t bin_size; 
@@ -105,33 +106,54 @@ static bool quantum_entropy_chunk(private_quantum_entropy_rng_t *this, chunk_t c
 
     char url[] = "https://%s/api/v1/entropy";
 	char auth_header[] = "Authorization: Bearer %s";
+	char key_header[] = "X-API-Key: %s";
 
 	fqdn = lib->settings->get_str(lib->settings, "%s.plugins.quantum_entropy.fqdn",
 									 NULL, lib->ns);
 
 	token = lib->settings->get_str(lib->settings, "%s.plugins.quantum_entropy.jwt",
 									 NULL, lib->ns);
+									 
+	api_key = lib->settings->get_str(lib->settings, "%s.plugins.quantum_entropy.api_key",
+									 NULL, lib->ns);
 
 	int endpoint_length = snprintf(NULL, 0, url, fqdn) + 1;
 	int header_length = snprintf(NULL, 0, auth_header, token) + 1;
+	int key_length = snprintf(NULL, 0, key_header, api_key) + 1;
 	char entropy_endpoint[endpoint_length];
     char header_string[header_length];
+	char key_header_string[key_length];
 
     int entropy_result = sprintf(entropy_endpoint, url, fqdn);
 	int header_result = sprintf(header_string, auth_header, token);
+	int key_result = sprintf(key_header_string, key_header, api_key);
 
-	if (entropy_result < 0 || header_result < 0) 
+	if (entropy_result < 0 || header_result < 0 || key_result < 0) 
 	{
 		DBG1(DBG_LIB, "Error While Formatting Strings For Entropy Request");
         return FALSE;
 	}
 	
-	if (lib->fetcher->fetch(lib->fetcher, entropy_endpoint, &response_chunk,
+	status_t fetch_result;
+	if (api_key) {
+		fetch_result = lib->fetcher->fetch(lib->fetcher, entropy_endpoint, &response_chunk,
 							FETCH_REQUEST_DATA, request_data,
 							FETCH_REQUEST_TYPE, "application/json",
 							FETCH_REQUEST_HEADER, header_string,
 							FETCH_REQUEST_HEADER, "Accept: application/json",
-							FETCH_END) == SUCCESS) {
+							FETCH_REQUEST_HEADER, key_header_string,
+							FETCH_END);
+	}
+	else {
+		fetch_result = lib->fetcher->fetch(lib->fetcher, entropy_endpoint, &response_chunk,
+							FETCH_REQUEST_DATA, request_data,
+							FETCH_REQUEST_TYPE, "application/json",
+							FETCH_REQUEST_HEADER, header_string,
+							FETCH_REQUEST_HEADER, "Accept: application/json",
+							FETCH_END);
+	}
+
+	if (fetch_result == SUCCESS) {
 								DBG2(DBG_LIB, "Successfully Received Entropy");
 	}
 	else {
