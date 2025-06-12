@@ -288,7 +288,12 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	} else {
 		// Open file, read lines, split lines, write as array, set 
 		chunk_t *servers_orig = chunk_map(serverfile, 'r');
+		if (servers_orig == NULL) {
+			DBG1(DBG_LIB, "Error: could not load serverfile '%s'\n", serverfile);
+			return NULL;
+		}
 		servers = chunk_create_clone(malloc(servers_orig->len + 1), *servers_orig);
+		servers.ptr[servers_orig->len] = '\0';
 		chunk_unmap(servers_orig);
 
 		chunk_t parsing = servers;
