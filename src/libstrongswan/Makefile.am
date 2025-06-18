@@ -290,6 +290,13 @@ if MONOLITHIC
 endif
 endif
 
+if USE_BLAST
+  SUBDIRS += plugins/blast
+if MONOLITHIC
+  libstrongswan_la_LIBADD += plugins/blast/libstrongswan-blast.la
+endif
+endif
+
 if USE_BLOWFISH
   SUBDIRS += plugins/blowfish
 if MONOLITHIC

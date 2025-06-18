@@ -134,6 +134,7 @@ m4_include(m4/macros/enable-disable.m4)
 # crypto plugins
 ARG_ENABL_SET([aes],            [enable AES software implementation plugin.])
 ARG_ENABL_SET([af-alg],         [enable AF_ALG crypto interface to Linux Crypto API.])
+ARG_DISBL_SET([blast],          [enable Blast implementation plugin.])
 ARG_ENABL_SET([blowfish],       [enable Blowfish software implementation plugin.])
 ARG_ENABL_SET([botan],          [enables the Botan crypto plugin.])
 ARG_ENABL_SET([ccm],            [enables the CCM AEAD wrapper crypto plugin.])
@@ -1542,6 +1543,7 @@ ADD_PLUGIN([tpm],                  [p charon pki nm cmd])
 ADD_PLUGIN([aesni],                [s charon pki scripts medsrv attest nm cmd aikgen])
 ADD_PLUGIN([aes],                  [s charon pki scripts nm cmd])
 ADD_PLUGIN([des],                  [s charon pki scripts nm cmd])
+ADD_PLUGIN([blast],                [s charon pki scripts nm cmd])
 ADD_PLUGIN([blowfish],             [s charon pki scripts nm cmd])
 ADD_PLUGIN([rc2],                  [s charon pki scripts nm cmd])
 ADD_PLUGIN([sha2],                 [s charon pki scripts medsrv attest nm cmd aikgen fuzz])
@@ -1706,6 +1708,7 @@ AM_CONDITIONAL(USE_SOUP, test x$soup = xtrue)
 AM_CONDITIONAL(USE_LDAP, test x$ldap = xtrue)
 AM_CONDITIONAL(USE_AES, test x$aes = xtrue)
 AM_CONDITIONAL(USE_DES, test x$des = xtrue)
+AM_CONDITIONAL(USE_BLAST, test x$blast = xtrue)
 AM_CONDITIONAL(USE_BLOWFISH, test x$blowfish = xtrue)
 AM_CONDITIONAL(USE_RC2, test x$rc2 = xtrue)
 AM_CONDITIONAL(USE_MD4, test x$md4 = xtrue)
@@ -1979,6 +1982,7 @@ AC_CONFIG_FILES([
 	src/libstrongswan/plugins/aes/Makefile
 	src/libstrongswan/plugins/cmac/Makefile
 	src/libstrongswan/plugins/des/Makefile
+	src/libstrongswan/plugins/blast/Makefile
 	src/libstrongswan/plugins/blowfish/Makefile
 	src/libstrongswan/plugins/rc2/Makefile
 	src/libstrongswan/plugins/md4/Makefile
