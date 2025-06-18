@@ -13,17 +13,7 @@ ninja
 sudo ninja install
 popd
 
-# Clone strongswan
-pushd .
-git clone https://github.com/QryptInc/strongswan.git
-cd strongswan
-git checkout BF-6.0.0beta4-qrypt-plugins
-cp ../sdk/* src/libstrongswan/plugins/blast/
-
-# Add the following lines to the config file
+# Adds the following lines to the config file
 # 	accept_private_algs = yes
 # 	send_vendor_id = yes
-mv conf/strongswan.conf conf/strongswan.original.conf
-sed 's/yes\n\tplugins/yes\n\taccept_private_algs = yes\n\tsend_vendor_id = yes\n\tplugins/g' conf/strongswan.original.conf > conf/strongswan.conf
-
-popd
+cp strongswan.conf ../conf/strongswan.conf

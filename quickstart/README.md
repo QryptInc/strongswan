@@ -1,10 +1,14 @@
+# Introduction
+
+This fork of strongswan includes Qrypt's BLAST plugin, providing the ability to use BLAST as an IKE in the IPsec protocol. The code is otherwise unchanged.
+
 # Abridged instructions
 
-These instructions are abridged from [our documentation for Nvidia](https://docs.qrypt.com/sdk/nvidia/). Scroll to the section "Build strongSwan with liboqs and Qrypt’s BLAST plugin" for the entire set of instructions that the two included scripts will execute.
+These instructions are abridged from [our documentation for Nvidia](https://docs.qrypt.com/sdk/nvidia/). Scroll to the section "Build strongSwan with liboqs and Qrypt’s BLAST plugin" for the entire set of instructions that the two included scripts will execute. These scripts are located in the `quickstart` directory.
 
 # Build
 
-To build, run `build.sh` from this directory. This builds strongswan and our HSM plugin. The redis server should be run in a separate terminal using `redis-server`. You can insert dummy values by running the `redis_init.sh` script.
+To build, run `build.sh` from the `quickstart` directory. This builds strongswan and our BLAST plugin.
 
 The strongswan daemon can then be started and controlled as such:
 
@@ -41,5 +45,5 @@ Please ensure the following when trying to run the Blast plugin:
     - Only place one `*.conf` file in the `/etc/swanctl/conf.d/` directory
 - Sockets already bound
     - Stop the service
-    - Check `sudo netstat -ntlp` doesn't have strongswan still running or bound to `4500` or `500`, if so kill it.
+    - Check `sudo netstat -ntlp` doesn't have strongswan still running and it or anything else bound to ports `4500` or `500`, if so kill it to free up those ports.
     - Try running `sudo systemctl start strongswan-starter`. Then try starting the `strongswan` service again. Check journalctl for success.
