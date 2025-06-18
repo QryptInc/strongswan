@@ -51,6 +51,25 @@ struct private_blast_ke_t {
 
 };
 
+#define CASERETURN_STR(id) case id: return #id
+static const char *qs_error_str(int code)
+{
+	switch (code)
+	{
+    CASERETURN_STR(QS_GOOD);
+    CASERETURN_STR(QS_UNKNOWN_ERROR);
+    CASERETURN_STR(QS_INVALID_ARGUMENT);
+    CASERETURN_STR(QS_SYSTEM_ERROR);
+    CASERETURN_STR(QS_CANNOT_DOWNLOAD);
+    CASERETURN_STR(QS_DATA_CORRUPTED);
+    CASERETURN_STR(QS_INCOMPATIBLE_VERSION);
+	default:
+		break;
+	}
+	return "Invalid error code";
+}
+#undef CASERETURN_STR
+
 /**
  * Gets the own public key to transmit.
  *
@@ -78,7 +97,7 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
 		DBG1(DBG_LIB, "%s: EP_TYPE_INITIATOR call qrypt_security_gen_init_aes", __func__);
 		int ret_code = qrypt_security_gen_init_aes(&this->qrypt_security, &key_data, key_config);
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_gen_init_aes returned %d", ret_code);
+			DBG1(DBG_LIB, "Error: qrypt_security_gen_init_aes returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
@@ -92,7 +111,7 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
 		// Free key data structure
 		ret_code = qrypt_security_symmetric_key_data_free(&key_data);
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_symmetric_key_data_free returned %d", ret_code);
+			DBG1(DBG_LIB, "Error: qrypt_security_symmetric_key_data_free returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
@@ -180,7 +199,7 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 		DBG1(DBG_LIB, "%s: EP_TYPE_RESPONDER call qrypt_security_gen_sync", __func__);
 		int ret_code = qrypt_security_gen_sync(&this->qrypt_security, &key_data);	// TODO: Update c wrapper to split key_data to metadata and key
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_gen_sync returned %d", ret_code);
+			DBG1(DBG_LIB, "Error: qrypt_security_gen_sync returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
@@ -192,7 +211,7 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 		key_data.metadata_size = 0;
 		ret_code = qrypt_security_symmetric_key_data_free(&key_data);
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_symmetric_key_data_free returned %d", ret_code);
+			DBG1(DBG_LIB, "Error: qrypt_security_symmetric_key_data_free returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
@@ -226,7 +245,8 @@ METHOD(key_exchange_t, destroy, void, private_blast_ke_t *this)
     DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
     int ret_code = qrypt_security_delete(&this->qrypt_security);
 	if (ret_code != QS_GOOD) {
-		DBG1(DBG_LIB, "Error: qrypt_security_delete returned %d", ret_code);
+		DBG1(DBG_LIB, "Error: qrypt_security_delete returned %s", qs_error_str(ret_code));
+		return;
 	}
 
 	chunk_free(&this->shared_secret);
@@ -273,7 +293,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 
 	int ret_code = qrypt_security_create(&this->qrypt_security);
 	if ( ret_code != QS_GOOD ) {
-		DBG1(DBG_LIB, "Error: qrypt_security_create returned %d", ret_code);
+		DBG1(DBG_LIB, "Error: qrypt_security_create returned %s", qs_error_str(ret_code));
 		return NULL;
 	}
 
@@ -314,18 +334,24 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	}
 	char *api_key = lib->settings->get_str(lib->settings, "%s.plugins.blast.api_key", NULL, lib->ns);
 	if (api_key == NULL) {
-		DBG1(DBG_LIB, "api_key not set\n");
+		DBG1(DBG_LIB, "[BLAST] api_key not set\n");
+		// NOT fatal, just don't use
+	}
+	char *ca_cert_path = lib->settings->get_str(lib->settings, "%s.plugins.blast.ca_cert_path", NULL, lib->ns);
+	if (ca_cert_path == NULL) {
+		DBG1(DBG_LIB, "[BLAST] ca_cert_path not set. If a QS_CANNOT_DOWNLOAD error follows, try setting this\n");
 		// NOT fatal, just don't use
 	}
 	client_config_t client_config = {
 		.static_servers = serverlist,
 		.static_servers_count = count,
-		.api_key = api_key
+		.api_key = api_key,
+		.ca_cert_path = ca_cert_path
 	};
 
 	ret_code = qrypt_security_initialize_client_config(&this->qrypt_security, token, token_length, client_config);
 	if ( ret_code != QS_GOOD ) {
-		DBG1(DBG_LIB, "Error: qrypt_security_initialize returned %d", ret_code);
+		DBG1(DBG_LIB, "Error: qrypt_security_initialize returned %s", qs_error_str(ret_code));
 		return NULL;
 	}
 
