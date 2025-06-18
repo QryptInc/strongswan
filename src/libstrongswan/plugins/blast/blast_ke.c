@@ -161,7 +161,7 @@ METHOD(key_exchange_t, set_public_key, bool, private_blast_ke_t *this, chunk_t v
  */
 METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_t *secret)
 {
-	
+
     DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__);
 
 	if (this->endpoint_type == EP_TYPE_RESPONDER) {
@@ -227,7 +227,6 @@ METHOD(key_exchange_t, destroy, void, private_blast_ke_t *this)
     int ret_code = qrypt_security_delete(&this->qrypt_security);
 	if (ret_code != QS_GOOD) {
 		DBG1(DBG_LIB, "Error: qrypt_security_delete returned %d", ret_code);
-		return FALSE;
 	}
 
 	chunk_free(&this->shared_secret);
