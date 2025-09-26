@@ -53,3 +53,4 @@ coverage/
 /*.includes
 test-driver
 nbproject/
+localconfig
