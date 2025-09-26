@@ -53,4 +53,9 @@ coverage/
 /*.includes
 test-driver
 nbproject/
+
+# Directory where developer can store personal customizations to the devcontainer
 localconfig
+
+# Bazel symlinks to build output output
+bzl-out

@@ -1,0 +1,17 @@
+###############################################################################
+## Bazel Configuration Flags
+##
+## `.bazelrc` is a Bazel configuration file.
+## https://bazel.build/docs/best-practices#bazelrc-file
+###############################################################################
+
+# Output dir
+build --symlink_prefix=bzl-out/
+
+# use remote jdk instead of trying to use a local one
+build --java_runtime_version=remotejdk_11
+
+# Bzlmod
+common --enable_bzlmod
+common --noincompatible_disallow_ctx_resolve_tools
+common --noincompatible_disallow_empty_glob
