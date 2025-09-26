@@ -1,35 +1,59 @@
 genrule(
+    name = "setup_conan",
+    srcs = ["setup_conan.sh"],
+    outs = ["conan_home.tar.gz"],
+    cmd = """
+		CONAN_HOME_DIR="$$(mktemp -d)"
+
+        # Run the setup script, telling it to create the conan home in a temp dir
+        ./$(location setup_conan.sh) "$$CONAN_HOME_DIR"
+
+        # Package the resulting conan_home directory into the declared output tarball
+        tar -czf $@ -C "$$CONAN_HOME_DIR" .
+    """,
+)
+
+genrule(
+    name = "pull_sdk",
+    srcs = [
+        "pull_sdk.sh",
+		":setup_conan",
+    ],
+    outs = ["qrypt_sdk.tar.gz"],
+    cmd = """
+        # Create a directory to hold the extracted Conan configuration
+        CONAN_HOME_DIR=$$(mktemp -d)
+        tar -xzf $(location :setup_conan) -C $$CONAN_HOME_DIR
+
+        # Create a directory for the final deployed files
+        DEPLOY_DIR=$$(mktemp -d)
+
+        # Run the deploy script, pointing it to the config and the output dir
+        ./$(location pull_sdk.sh) $$CONAN_HOME_DIR $$DEPLOY_DIR
+
+        # Package the final SDK files into the declared output tarball
+        tar -czf $@ -C $$DEPLOY_DIR .
+    """,
+)
+
+genrule(
 	name = "h",
+	srcs = [":pull_sdk"],
 	outs = ["qryptsecurity_c.h"],
-	cmd = select({
-		"//:is_x86_64": """
-			TEMP_DIR="$$(mktemp -d)"
-			conan install --requires qryptsdkwrapper/0.12.2@qrypt/dev -o "&:language=c" --profile linux-x86_64 --deployer-package="&" --deployer-folder="$$TEMP_DIR"
-			cp "$$TEMP_DIR"/asdf/include/QryptSecurityC/qryptsecurity_c.h $(location qryptsecurity_c.h)
-		""",
-		"//conditions:default": """
-			TEMP_DIR="$$(mktemp -d)"
-			conan install --requires qryptsdkwrapper/0.12.2@qrypt/dev -o "&:language=c" --profile linux-aarch64 --deployer-package="&" --deployer-folder="$$TEMP_DIR"
-			cp "$$TEMP_DIR"/include/QryptSecurityC/qryptsecurity_c.h $(location qryptsecurity_c.h)
-		""",
-    }),
+	cmd = """
+		tar -xvf $(location pull_sdk)
+		cp include/QryptSecurityC/qryptsecurity_c.h $(location qryptsecurity_c.h)
+	""",
 )
 
 genrule(
 	name = "so",
+	srcs = [":pull_sdk"],
 	outs = ["libQryptSecurityC.so"],
-	cmd = select({
-		"//:is_x86_64": """
-			TEMP_DIR="$$(mktemp -d)"
-			conan install --requires qryptsdkwrapper/0.12.2@qrypt/dev -o "&:language=c" --profile linux-x86_64 --deployer-package="&" --deployer-folder="$$TEMP_DIR"
-	 		cp ""$TEMP_DIR"/lib/libQryptSecurityC.so $(location libQryptSecurityC.so)
-		""",
-		"//conditions:default": """
-			TEMP_DIR="$$(mktemp -d)"
-			conan install --requires qryptsdkwrapper/0.12.2@qrypt/dev -o "&:language=c" --profile linux-aarch64 --deployer-package="&" --deployer-folder="$$TEMP_DIR"
-	 		cp "$$TEMP_DIR"/lib/libQryptSecurityC.so $(location libQryptSecurityC.so)
-		""",
-    }),
+	cmd = """
+		tar -xvf $(location pull_sdk)
+		cp lib/libQryptSecurityC.so $(location libQryptSecurityC.so)
+	""",
 )
 
 cc_import(
