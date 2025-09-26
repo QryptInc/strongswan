@@ -1,10 +1,3 @@
-        # conan install .
-        # echo "filegroup(name = 'shared_libraries', srcs = glob(['lib/**/*.so',]),\
-        #           visibility = ['//visibility:public'],)"\
-        #         >> conan/qryptsecurity/BUILD.bazel
-        # cd libs/imports/qryptsdkwrapper/linux_aarch64 && conan install --requires qryptsdkwrapper/0.12.2@qrypt/dev -o "&:language=c" --profile linux-aarch64 --deployer-package="&" --deployer-folder=.
-        # cd libs/imports/qryptsdkwrapper/linux_x86_64 && conan install --requires qryptsdkwrapper/0.12.2@qrypt/dev -o "&:language=c" --profile linux-x86_64 --deployer-package="&" --deployer-folder=.
-
 genrule(
 	name = "h",
 	outs = ["qryptsecurity_c.h"],
