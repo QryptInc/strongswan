@@ -67,6 +67,7 @@ cov-report:
 		lcov -c -o $(top_builddir)/coverage/coverage.info -d $(top_builddir) \
 			 --rc lcov_branch_coverage=1
 		lcov -r $(top_builddir)/coverage/coverage.info '*/tests/*' '*/suites/*' '/usr*' \
+			'*proposal_keywords_static.*' \
 			 -o $(abs_top_builddir)/coverage/coverage.cleaned.info \
 			 --rc lcov_branch_coverage=1
 		genhtml --num-spaces 4 --legend --branch-coverage --ignore-errors source \
