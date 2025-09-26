@@ -1,6 +1,7 @@
 module(
-	name = "mono-repo",
-	version = "0.1.0",
+	name = "strongswan-qrypt",
+    version = "0.0.0.rpg.version.placeholder",
+    compatibility_level = 1,
 )
 
 bazel_dep(name = "rules_foreign_cc", version = "0.15.0")
