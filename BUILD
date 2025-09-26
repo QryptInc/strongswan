@@ -6,3 +6,8 @@ config_setting(
     ],
 )
 
+module(
+    name = "strongswan-qrypt",
+    version = "0.0.0.rpg.version.placeholder",
+    compatibility_level = 1,
+)
