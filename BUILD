@@ -5,3 +5,9 @@ config_setting(
         "@platforms//os:linux",
     ],
 )
+
+alias(
+	name = "strongswan-qrypt",
+	actual = "//strongswan:strongswan-qrypt",
+)
+
