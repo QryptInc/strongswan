@@ -23,3 +23,15 @@ filegroup(name=\"hiredis-src\", srcs=glob([\"**\"]))
     type = "tar.gz",
     urls = ["https://github.com/redis/hiredis/archive/refs/tags/v1.3.0.tar.gz"],
 )
+
+http_archive(
+    name = "liboqs-repo",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+filegroup(name=\"liboqs-src\", srcs=glob([\"**\"]))
+""",
+    sha256 = "5b0df6138763b3fc4e385d58dbb2ee7c7c508a64a413d76a917529e3a9a207ea",
+    strip_prefix = "liboqs-0.14.0",
+    type = "tar.gz",
+    urls = ["https://github.com/open-quantum-safe/liboqs/archive/refs/tags/0.14.0.tar.gz"],
+)

@@ -1,4 +1,4 @@
-load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake", "configure_make")
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake", "configure_make", "ninja")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -12,21 +12,55 @@ cmake(
     ],
 )
 
-genrule(
-    name = "hiredis-lib",
-    srcs = [":hiredis"],
-    outs = [
-        "libhiredis.so.1",
+# cmake(
+#     name = "liboqs",
+#     lib_source = "@liboqs-repo//:liboqs-src",
+#     out_shared_libs = [
+#         "liboqs.so",
+#         "liboqs.so.8",
+#         # "liboqs.so.0.14.1-dev",
+#     ],
+# )
+
+cmake(
+    name = "liboqs",
+    lib_source = "@liboqs-repo//:liboqs-src",
+	generate_args = [
+        "-G Ninja",
     ],
-    cmd = """
-        for f in $(locations :hiredis); do
-            if [[ $$f == *"libhiredis.so.1" ]]; then
-                cp $$f $(location libhiredis.so.1)
-            fi
-        done
-""",
+    cache_entries = {
+        "OQS_USE_OPENSSL": "ON",
+        "BUILD_SHARED_LIBS": "ON",
+        "CMAKE_INSTALL_PREFIX": "/usr",
+        "CMAKE_BUILD_TYPE": "Release",
+        "OQS_BUILD_ONLY_LIB": "ON",
+    },
+	out_shared_libs = ["liboqs.so"],
 )
 
+# cmake -GNinja -DOQS_USE_OPENSSL=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr \
+#               -DCMAKE_BUILD_TYPE=Release -DOQS_BUILD_ONLY_LIB=ON ..
+
+# ninja(
+# 	name = "liboqs",
+# 	lib_source = ":liboqs-cmake",
+# )
+
+# genrule(
+#     name = "hiredis-lib",
+#     srcs = [":hiredis"],
+#     outs = [
+#         "libhiredis.so.1",
+#     ],
+#     cmd = """
+#         for f in $(locations :hiredis); do
+#             if [[ $$f == *"libhiredis.so.1" ]]; then
+#                 cp $$f $(location libhiredis.so.1)
+#             fi
+#         done
+# """,
+# )
+#
 filegroup(
     name = "strongswan-qrypt-repo",
     srcs = glob(["**"]),
@@ -47,6 +81,7 @@ configure_make(
         "--sysconfdir=/etc",
         "--enable-systemd",
         "--enable-cmd",
+		"--enable-oqs",
         "--with-systemdsystemunitdir=/lib/systemd/system",
     ],
     data = [
@@ -108,6 +143,7 @@ configure_make(
     visibility = ["//visibility:public"],
     deps = [
         ":hiredis",
+        ":liboqs",
 		"//qryptsecurity:qryptsecurity_c",
     ],
 )
