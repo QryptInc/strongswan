@@ -24,12 +24,12 @@ genrule(
     name = "liboqs-lib",
     srcs = ["//strongswan:liboqs"],
     outs = [
-        "liboqs.so",
+        "liboqs.so.8",
     ],
     cmd = """
         for f in $(locations //strongswan:liboqs); do
-            if [[ $$f == *"liboqs.so" ]]; then
-                cp $$f $(location liboqs.so)
+            if [[ $$f == *"liboqs.so.8" ]]; then
+                cp $$f $(location liboqs.so.8)
             fi
         done
 		""",

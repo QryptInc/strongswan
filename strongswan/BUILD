@@ -25,7 +25,10 @@ cmake(
         "CMAKE_BUILD_TYPE": "Release",
         "OQS_BUILD_ONLY_LIB": "ON",
     },
-	out_shared_libs = ["liboqs.so.8"],
+	out_shared_libs = [
+		"liboqs.so",
+		"liboqs.so.8"
+	],
 )
 
 filegroup(
