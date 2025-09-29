@@ -73,6 +73,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     libc6-dev-amd64-cross \
 		libssl-dev:amd64 \
 		libclang-dev \
+		clangd-12 \
     libsystemd-dev:amd64 \
     shtool \
     gperf \
