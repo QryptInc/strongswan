@@ -90,6 +90,7 @@ configure_make(
         "plugins/libstrongswan-kernel-netlink.so",
         "plugins/libstrongswan-nonce.so",
         "plugins/libstrongswan-openssl.so",
+		"plugins/libstrongswan-oqs.so",
         "plugins/libstrongswan-pem.so",
         "plugins/libstrongswan-pgp.so",
         "plugins/libstrongswan-pkcs1.so",
