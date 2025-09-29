@@ -288,8 +288,8 @@ proposal_t *proposal_select(linked_list_t *configured, linked_list_t *supplied,
 							proposal_selection_flag_t flags);
 
 /**
- * Check whether this proposal contains algorithms for any additional key
- * exchange method transform types.
+ * Check whether this proposal algorithms for any additional key exchange
+ * method transform types.
  *
  * @return					TRUE if found
  */
