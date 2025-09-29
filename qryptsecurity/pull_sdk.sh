@@ -3,11 +3,11 @@ set -euo pipefail
 
 CONAN_HOME_DIR="$1"
 DEPLOY_DIR="$2"
+ARCH="$3"
 mkdir -p "$DEPLOY_DIR"
 
 export CONAN_HOME="$CONAN_HOME_DIR"
 
-ARCH="$(uname -m)"
 PROFILE=""
 
 if [ "$ARCH" == "x86_64" ]; then

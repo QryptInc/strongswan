@@ -55,7 +55,7 @@ configure_make(
         ":strongswan-qrypt-repo",
     ],
     env = select({
-        "//:is_x86_64": {
+        "//tools/platforms:is_x86_64": {
             "PKG_CONFIG_PATH": "/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
         },
         "//conditions:default": {

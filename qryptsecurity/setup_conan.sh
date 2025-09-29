@@ -1,13 +1,13 @@
 set -euo pipefail
 
 CONAN_HOME_DIR="$1"
+ARCH="$2"
 mkdir -p "$CONAN_HOME_DIR"
 
 export CONAN_HOME="$CONAN_HOME_DIR"
 
 python3 -m pip install conan==2.8.1
 
-ARCH="$(uname -m)"
 if [ "$ARCH" == "x86_64" ]; then
     echo "Detected x86_64. Installing linux-x86_64 config..."
     conan config install-pkg \
