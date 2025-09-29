@@ -12,16 +12,6 @@ cmake(
     ],
 )
 
-# cmake(
-#     name = "liboqs",
-#     lib_source = "@liboqs-repo//:liboqs-src",
-#     out_shared_libs = [
-#         "liboqs.so",
-#         "liboqs.so.8",
-#         # "liboqs.so.0.14.1-dev",
-#     ],
-# )
-
 cmake(
     name = "liboqs",
     lib_source = "@liboqs-repo//:liboqs-src",
@@ -38,29 +28,6 @@ cmake(
 	out_shared_libs = ["liboqs.so"],
 )
 
-# cmake -GNinja -DOQS_USE_OPENSSL=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr \
-#               -DCMAKE_BUILD_TYPE=Release -DOQS_BUILD_ONLY_LIB=ON ..
-
-# ninja(
-# 	name = "liboqs",
-# 	lib_source = ":liboqs-cmake",
-# )
-
-# genrule(
-#     name = "hiredis-lib",
-#     srcs = [":hiredis"],
-#     outs = [
-#         "libhiredis.so.1",
-#     ],
-#     cmd = """
-#         for f in $(locations :hiredis); do
-#             if [[ $$f == *"libhiredis.so.1" ]]; then
-#                 cp $$f $(location libhiredis.so.1)
-#             fi
-#         done
-# """,
-# )
-#
 filegroup(
     name = "strongswan-qrypt-repo",
     srcs = glob(["**"]),
