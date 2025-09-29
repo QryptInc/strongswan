@@ -9,5 +9,6 @@ config_setting(
 alias(
 	name = "strongswan-qrypt",
 	actual = "//strongswan:strongswan-qrypt",
+	visibility = ["//visibility:public"]
 )
 
