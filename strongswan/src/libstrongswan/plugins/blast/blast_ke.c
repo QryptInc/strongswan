@@ -152,8 +152,8 @@ METHOD(key_exchange_t, set_public_key, bool, private_blast_ke_t *this, chunk_t v
 	} else if (this->endpoint_type == EP_TYPE_UNKNOWN) {
 
 		this->endpoint_type = EP_TYPE_RESPONDER;  // set_public_key is the first KE call by the responder
-		
-		if(value.len > 0) { 
+
+		if(value.len > 0) {
 			DBG1(DBG_LIB, "%s: EP_TYPE_RESPONDER save metadata", __func__);
 			this->metadata = chunk_clone(value);
 		} else {
@@ -184,7 +184,7 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
     DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__);
 
 	if (this->endpoint_type == EP_TYPE_RESPONDER) {
-		
+
 		if (this->metadata.ptr == NULL) {
 			DBG1(DBG_LIB, "Error: metadata was not saved from a prior call");
 			return FALSE;
@@ -260,7 +260,7 @@ METHOD(key_exchange_t, destroy, void, private_blast_ke_t *this)
  */
 blast_ke_t *blast_ke_create(key_exchange_method_t method)
 {
-	
+
 	private_blast_ke_t *this;
 	char *token = NULL;
 	size_t token_length = 0;
@@ -305,7 +305,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		DBG1(DBG_LIB, "serverfile not set! skipping...\n");
 		// NOT fatal, just don't load servers
 	} else {
-		// Open file, read lines, split lines, write as array, set 
+		// Open file, read lines, split lines, write as array, set
 		chunk_t *servers_orig = chunk_map(serverfile, 'r');
 		if (servers_orig == NULL) {
 			DBG1(DBG_LIB, "Error: could not load serverfile '%s'\n", serverfile);
@@ -354,6 +354,8 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		DBG1(DBG_LIB, "Error: qrypt_security_initialize returned %s", qs_error_str(ret_code));
 		return NULL;
 	}
+
+	qrypt_security_set_log_level(QRYPTSECURITY_LOG_LEVEL_TRACE);
 
 	if (servers.ptr != NULL) {
 		chunk_free(&servers);
