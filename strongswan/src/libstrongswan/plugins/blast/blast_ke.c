@@ -215,13 +215,13 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 			return FALSE;
 		}
 
-		DBG1(DBG_LIB, "%s: EP_TYPE_RESPONDER BLAST shared secret %B", __func__, secret);	// TODO: Drop log level to 4
+		DBG4(DBG_LIB, "%s: EP_TYPE_RESPONDER BLAST shared secret %B", __func__, secret);
 
 	} else if (this->endpoint_type == EP_TYPE_INITIATOR) {
 
 		// Blast key should already be generated from the get_public_key call
 		*secret = chunk_clone(this->shared_secret);
-		DBG1(DBG_LIB, "%s: EP_TYPE_INITIATOR BLAST shared secret %B", __func__, secret);	// TODO: Drop log level to 4
+		DBG4(DBG_LIB, "%s: EP_TYPE_INITIATOR BLAST shared secret %B", __func__, secret);
 
 	} else {
 
@@ -355,7 +355,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		return NULL;
 	}
 
-	qrypt_security_set_log_level(QRYPTSECURITY_LOG_LEVEL_TRACE);
+	qrypt_security_set_log_level(QRYPTSECURITY_LOG_LEVEL_INFO);
 
 	if (servers.ptr != NULL) {
 		chunk_free(&servers);
