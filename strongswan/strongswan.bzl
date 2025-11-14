@@ -31,6 +31,7 @@ def strongswan_qrypt(name, enable_systemd = True):
     # Conditionally add systemd-related options
     if enable_systemd:
         configure_options.append("--enable-systemd")
+        configure_options.append("--enable-kernel-libipsec")
         out_binaries.append("charon-systemd")
         out_data_files.append("lib/systemd/system/strongswan.service")
 
