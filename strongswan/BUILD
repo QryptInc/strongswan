@@ -32,12 +32,17 @@ cmake(
 	],
 )
 
-alias(
-	name = "qryptsecurity_c",
-	actual = "//qryptsecurity:qryptsecurity_c",
-)
-
 filegroup(
     name = "strongswan-qrypt-repo",
     srcs = glob(["**"]),
+)
+
+strongswan_qrypt(
+	name = "strongswan-systemd",
+	enable_systemd = True,
+)
+
+strongswan_qrypt(
+	name = "strongswan-no-systemd",
+	enable_systemd = False,
 )

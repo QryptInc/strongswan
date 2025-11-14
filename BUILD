@@ -1,3 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
+alias(
+	name = "strongswan-systemd",
+	actual = "//strongswan:strongswan-systemd",
+)
+
+alias(
+	name = "strongswan-no-systemd",
+	actual = "//strongswan:strongswan-no-systemd",
+)
+
 genrule(
     name = "hiredis-lib",
     srcs = ["//strongswan:hiredis"],
@@ -11,7 +23,6 @@ genrule(
             fi
         done
 		""",
-		visibility = ["//visibility:public"]
 )
 
 genrule(
@@ -27,5 +38,4 @@ genrule(
             fi
         done
 		""",
-		visibility = ["//visibility:public"]
 )

@@ -67,7 +67,7 @@ def strongswan_qrypt(name, enable_systemd = True):
         deps = [
             ":hiredis",
             ":liboqs",
-            ":qryptsecurity_c",
+            "//qryptsecurity:qryptsecurity_c",
         ],
 
         env = select({
