@@ -36,8 +36,3 @@ filegroup(
     name = "strongswan-qrypt-repo",
     srcs = glob(["**"]),
 )
-
-# Defaults to enable_systemd = True
-strongswan_qrypt(
-    name = "strongswan-qrypt",
-)

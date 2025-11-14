@@ -1,8 +1,7 @@
-alias(
-	name = "strongswan-qrypt",
-	actual = "//strongswan:strongswan-qrypt",
-	visibility = ["//visibility:public"]
-)
+load("//strongswan:strongswan.bzl", _strongswan_qrypt = "strongswan_qrypt")
+
+# Re-export macro under its public name
+strongswan_qrypt = _strongswan_qrypt
 
 genrule(
     name = "hiredis-lib",
