@@ -27,6 +27,40 @@ def strongswan_qrypt(name, enable_systemd = True):
 
     out_data_files = []
 
+    out_shared_libs = [
+		"libcharon.so.0",
+		"libstrongswan.so.0",
+		"libtls.so.0",
+		"libvici.so.0",
+		"plugins/libstrongswan-attr.so",
+		"plugins/libstrongswan-blast.so",
+		"plugins/libstrongswan-cmac.so",
+		"plugins/libstrongswan-constraints.so",
+		"plugins/libstrongswan-dnskey.so",
+		"plugins/libstrongswan-drbg.so",
+		"plugins/libstrongswan-kdf.so",
+		"plugins/libstrongswan-kernel-netlink.so",
+		"plugins/libstrongswan-nonce.so",
+		"plugins/libstrongswan-openssl.so",
+		"plugins/libstrongswan-oqs.so",
+		"plugins/libstrongswan-pem.so",
+		"plugins/libstrongswan-pgp.so",
+		"plugins/libstrongswan-pkcs1.so",
+		"plugins/libstrongswan-pkcs7.so",
+		"plugins/libstrongswan-pkcs8.so",
+		"plugins/libstrongswan-pubkey.so",
+		"plugins/libstrongswan-redis.so",
+		"plugins/libstrongswan-resolve.so",
+		"plugins/libstrongswan-revocation.so",
+		"plugins/libstrongswan-socket-default.so",
+		"plugins/libstrongswan-sshkey.so",
+		"plugins/libstrongswan-updown.so",
+		"plugins/libstrongswan-vici.so",
+		"plugins/libstrongswan-x509.so",
+		"plugins/libstrongswan-xauth-generic.so",
+		"plugins/libstrongswan-xcbc.so",
+    ]
+
     # Conditionally add systemd-related options
     if enable_systemd:
         configure_options.append("--enable-systemd")
@@ -35,6 +69,8 @@ def strongswan_qrypt(name, enable_systemd = True):
         out_data_files.append("lib/systemd/system/strongswan.service")
     else:
         configure_options.append("--enable-kernel-libipsec")
+        out_shared_libs.append("libipsec.so.0")
+        out_shared_libs.append("plugins/libstrongswan-kernel-libipsec.so")
 
     # Rule instantiation
     configure_make(
@@ -81,40 +117,6 @@ def strongswan_qrypt(name, enable_systemd = True):
             },
         }),
 
-        # Hard-coded output lists
-        out_shared_libs = [
-            "libcharon.so.0",
-            "libstrongswan.so.0",
-            "libtls.so.0",
-            "libvici.so.0",
-            "plugins/libstrongswan-attr.so",
-            "plugins/libstrongswan-blast.so",
-            "plugins/libstrongswan-cmac.so",
-            "plugins/libstrongswan-constraints.so",
-            "plugins/libstrongswan-dnskey.so",
-            "plugins/libstrongswan-drbg.so",
-            "plugins/libstrongswan-kdf.so",
-            "plugins/libstrongswan-kernel-libipsec.so",
-            "plugins/libstrongswan-kernel-netlink.so",
-            "plugins/libstrongswan-nonce.so",
-            "plugins/libstrongswan-openssl.so",
-            "plugins/libstrongswan-oqs.so",
-            "plugins/libstrongswan-pem.so",
-            "plugins/libstrongswan-pgp.so",
-            "plugins/libstrongswan-pkcs1.so",
-            "plugins/libstrongswan-pkcs7.so",
-            "plugins/libstrongswan-pkcs8.so",
-            "plugins/libstrongswan-pubkey.so",
-            "plugins/libstrongswan-redis.so",
-            "plugins/libstrongswan-resolve.so",
-            "plugins/libstrongswan-revocation.so",
-            "plugins/libstrongswan-socket-default.so",
-            "plugins/libstrongswan-sshkey.so",
-            "plugins/libstrongswan-updown.so",
-            "plugins/libstrongswan-vici.so",
-            "plugins/libstrongswan-x509.so",
-            "plugins/libstrongswan-xauth-generic.so",
-            "plugins/libstrongswan-xcbc.so",
-        ],
+        out_shared_libs = out_shared_libs
     )
 
