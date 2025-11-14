@@ -32,6 +32,11 @@ cmake(
 	],
 )
 
+alias(
+	name = "qryptsecurity_c",
+	actual = "//qryptsecurity:qryptsecurity_c",
+)
+
 filegroup(
     name = "strongswan-qrypt-repo",
     srcs = glob(["**"]),
