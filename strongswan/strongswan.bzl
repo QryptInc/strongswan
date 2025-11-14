@@ -18,7 +18,6 @@ def strongswan_qrypt(name, enable_systemd = True):
         "--sysconfdir=/etc",
         "--enable-cmd",
         "--enable-oqs",
-        "--with-systemdsystemunitdir=/lib/systemd/system",
     ]
 
     out_binaries = [
@@ -31,9 +30,11 @@ def strongswan_qrypt(name, enable_systemd = True):
     # Conditionally add systemd-related options
     if enable_systemd:
         configure_options.append("--enable-systemd")
-        configure_options.append("--enable-kernel-libipsec")
+        configure_options.append("--with-systemdsystemunitdir=/lib/systemd/system")
         out_binaries.append("charon-systemd")
         out_data_files.append("lib/systemd/system/strongswan.service")
+    else:
+        configure_options.append("--enable-kernel-libipsec")
 
     # Rule instantiation
     configure_make(
@@ -93,6 +94,7 @@ def strongswan_qrypt(name, enable_systemd = True):
             "plugins/libstrongswan-dnskey.so",
             "plugins/libstrongswan-drbg.so",
             "plugins/libstrongswan-kdf.so",
+            "plugins/libstrongswan-kernel-libipsec.so",
             "plugins/libstrongswan-kernel-netlink.so",
             "plugins/libstrongswan-nonce.so",
             "plugins/libstrongswan-openssl.so",
