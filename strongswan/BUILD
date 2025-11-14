@@ -1,4 +1,5 @@
-load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake", "configure_make", "ninja")
+load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
+load(":strongswan.bzl", "strongswan_qrypt")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -36,85 +37,7 @@ filegroup(
     srcs = glob(["**"]),
 )
 
-configure_make(
+# Defaults to enable_systemd = True
+strongswan_qrypt(
     name = "strongswan-qrypt",
-    args = [
-        "-j",
-        "DESTDIR=$INSTALLDIR",
-    ],
-    autogen = True,
-    configure_in_place = True,
-    configure_options = [
-        "--enable-openssl",
-        "--disable-random",
-        "--prefix=/usr",
-        "--sysconfdir=/etc",
-        "--enable-systemd",
-        "--enable-cmd",
-		"--enable-oqs",
-        "--with-systemdsystemunitdir=/lib/systemd/system",
-    ],
-    data = [
-        ":strongswan-qrypt-repo",
-    ],
-    env = select({
-        "//tools/platforms:is_x86_64": {
-            "PKG_CONFIG_PATH": "/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
-        },
-        "//conditions:default": {
-            "PKG_CONFIG_PATH": "/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
-        },
-    }),
-    lib_source = ":strongswan-qrypt-repo",
-    out_bin_dir = "usr/sbin",
-    out_binaries = [
-        "charon-cmd",
-        "swanctl",
-        "charon-systemd",
-    ],
-    out_data_dirs = [
-        "etc",
-        "usr/share/man",
-    ],
-    out_data_files = ["lib/systemd/system/strongswan.service"],
-    out_lib_dir = "usr/lib/ipsec",
-    out_shared_libs = [
-        "libcharon.so.0",
-        "libstrongswan.so.0",
-        "libtls.so.0",
-        "libvici.so.0",
-        "plugins/libstrongswan-attr.so",
-        "plugins/libstrongswan-blast.so",
-        "plugins/libstrongswan-cmac.so",
-        "plugins/libstrongswan-constraints.so",
-        "plugins/libstrongswan-dnskey.so",
-        "plugins/libstrongswan-drbg.so",
-        "plugins/libstrongswan-kdf.so",
-        "plugins/libstrongswan-kernel-netlink.so",
-        "plugins/libstrongswan-nonce.so",
-        "plugins/libstrongswan-openssl.so",
-		"plugins/libstrongswan-oqs.so",
-        "plugins/libstrongswan-pem.so",
-        "plugins/libstrongswan-pgp.so",
-        "plugins/libstrongswan-pkcs1.so",
-        "plugins/libstrongswan-pkcs7.so",
-        "plugins/libstrongswan-pkcs8.so",
-        "plugins/libstrongswan-pubkey.so",
-        "plugins/libstrongswan-redis.so",
-        "plugins/libstrongswan-resolve.so",
-        "plugins/libstrongswan-revocation.so",
-        "plugins/libstrongswan-socket-default.so",
-        "plugins/libstrongswan-sshkey.so",
-        "plugins/libstrongswan-updown.so",
-        "plugins/libstrongswan-vici.so",
-        "plugins/libstrongswan-x509.so",
-        "plugins/libstrongswan-xauth-generic.so",
-        "plugins/libstrongswan-xcbc.so",
-    ],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":hiredis",
-        ":liboqs",
-		"//qryptsecurity:qryptsecurity_c",
-    ],
 )
