@@ -18,6 +18,7 @@ def strongswan_qrypt(name, enable_systemd = True):
         "--sysconfdir=/etc",
         "--enable-cmd",
         "--enable-oqs",
+		"--enable-counters",
     ]
 
     out_binaries = [
