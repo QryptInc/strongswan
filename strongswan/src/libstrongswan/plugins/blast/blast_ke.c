@@ -82,11 +82,11 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
     symmetric_key_data_t key_data;
 	key_config_t key_config = { 300 };
 
-	DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
+	DBG2(DBG_LIB, "[BLAST] Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
 
 	if (this->endpoint_type == EP_TYPE_INITIATOR) {
 
-		DBG1(DBG_LIB, "Error: unexpected endpoint_type %d", this->endpoint_type);
+		DBG1(DBG_LIB, "[BLAST] Error: unexpected endpoint_type %d", this->endpoint_type);
 		return FALSE;
 
 	} else if (this->endpoint_type == EP_TYPE_UNKNOWN) {
@@ -94,37 +94,37 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
 		this->endpoint_type = EP_TYPE_INITIATOR; // get_public_key is the first KE call by the initiator
 
 		// Perform blast genInit
-		DBG1(DBG_LIB, "%s: EP_TYPE_INITIATOR call qrypt_security_gen_init_aes", __func__);
+		DBG2(DBG_LIB, "[BLAST] (ALICE) %s: calling qrypt_security_gen_init_aes...", __func__);
 		int ret_code = qrypt_security_gen_init_aes(&this->qrypt_security, &key_data, key_config);
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_gen_init_aes returned %s", qs_error_str(ret_code));
+			DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_gen_init_aes returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
 		// Save blast key
-		DBG1(DBG_LIB, "%s: EP_TYPE_INITIATOR save blast key", __func__);
+		DBG2(DBG_LIB, "[BLAST] (ALICE) %s: saving blast key...", __func__);
 		this->shared_secret = chunk_clone(chunk_create(key_data.key, key_data.key_size));
 
-		DBG1(DBG_LIB, "%s: EP_TYPE_INITIATOR return metadata", __func__);
+		DBG2(DBG_LIB, "[BLAST] (ALICE) %s: returning metadata...", __func__);
 		*value = chunk_clone(chunk_create(key_data.metadata, key_data.metadata_size));
 
 		// Free key data structure
 		ret_code = qrypt_security_symmetric_key_data_free(&key_data);
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_symmetric_key_data_free returned %s", qs_error_str(ret_code));
+			DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_symmetric_key_data_free returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
 	} else if (this->endpoint_type == EP_TYPE_RESPONDER ) {
 
-		//DBG1(DBG_LIB, "%s: EP_TYPE_RESPONDER return ack", __func__);
+		DBG2(DBG_LIB, "[BLAST] (BOB) %s: returning ack...", __func__);
 
         uint8_t ssecret[32] = "metadata_rcvd\n";
         *value = chunk_clone(chunk_from_thing(ssecret));
 
 	}
 
-	DBG2(DBG_LIB, "Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
+	DBG2(DBG_LIB, "[BLAST] Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
     return TRUE;
 
 }
@@ -142,11 +142,11 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
 METHOD(key_exchange_t, set_public_key, bool, private_blast_ke_t *this, chunk_t value)
 {
 
-	DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
+	DBG2(DBG_LIB, "[BLAST] Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
 
 	if (this->endpoint_type == EP_TYPE_RESPONDER) {
 
-		DBG1(DBG_LIB, "Error: unexpected endpoint_type %d", this->endpoint_type);
+		DBG1(DBG_LIB, "[BLAST] Error: unexpected endpoint_type %d", this->endpoint_type);
 		return FALSE;
 
 	} else if (this->endpoint_type == EP_TYPE_UNKNOWN) {
@@ -154,20 +154,20 @@ METHOD(key_exchange_t, set_public_key, bool, private_blast_ke_t *this, chunk_t v
 		this->endpoint_type = EP_TYPE_RESPONDER;  // set_public_key is the first KE call by the responder
 
 		if(value.len > 0) {
-			DBG1(DBG_LIB, "%s: EP_TYPE_RESPONDER save metadata", __func__);
+			DBG2(DBG_LIB, "[BLAST] (BOB) %s: saving metadata...", __func__);
 			this->metadata = chunk_clone(value);
 		} else {
-			DBG1(DBG_LIB, "Error: Responder did not receive metadata");
+			DBG1(DBG_LIB, "[BLAST] Error: Responder did not receive metadata");
 			return FALSE;
 		}
 
 	} else if (this->endpoint_type == EP_TYPE_INITIATOR ) {
 
-		//DBG1(DBG_LIB, "%s: EP_TYPE_INITIATOR do nothing with ack", __func__);
+		DBG2(DBG_LIB, "[BLAST] (ALICE) %s: doing nothing with ack...", __func__);
 
 	}
 
-	DBG2(DBG_LIB, "Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
+	DBG2(DBG_LIB, "[BLAST] Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
     return TRUE;
 
 }
@@ -181,12 +181,12 @@ METHOD(key_exchange_t, set_public_key, bool, private_blast_ke_t *this, chunk_t v
 METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_t *secret)
 {
 
-    DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__);
+    DBG2(DBG_LIB, "[BLAST] Enter %s, %s (%d)", __func__, __FILE__, __LINE__);
 
 	if (this->endpoint_type == EP_TYPE_RESPONDER) {
 
 		if (this->metadata.ptr == NULL) {
-			DBG1(DBG_LIB, "Error: metadata was not saved from a prior call");
+			DBG1(DBG_LIB, "[BLAST] Error: metadata was not saved from a prior call");
 			return FALSE;
 		}
 
@@ -196,10 +196,10 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 		key_data.metadata_size = this->metadata.len;
 
 		// Perform blast genSync
-		DBG1(DBG_LIB, "%s: EP_TYPE_RESPONDER call qrypt_security_gen_sync", __func__);
+		DBG2(DBG_LIB, "[BLAST] (BOB) %s: calling qrypt_security_gen_sync...", __func__);
 		int ret_code = qrypt_security_gen_sync(&this->qrypt_security, &key_data);	// TODO: Update c wrapper to split key_data to metadata and key
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_gen_sync returned %s", qs_error_str(ret_code));
+			DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_gen_sync returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
@@ -211,26 +211,35 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 		key_data.metadata_size = 0;
 		ret_code = qrypt_security_symmetric_key_data_free(&key_data);
 		if (ret_code != QS_GOOD) {
-			DBG1(DBG_LIB, "Error: qrypt_security_symmetric_key_data_free returned %s", qs_error_str(ret_code));
+			DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_symmetric_key_data_free returned %s", qs_error_str(ret_code));
 			return FALSE;
 		}
 
-		DBG4(DBG_LIB, "%s: EP_TYPE_RESPONDER BLAST shared secret %B", __func__, secret);
+		// !!!WARNING!!!
+		//
+		// Enabling log level 4 will print out the shared secret.
+		// DO NOT enable log level 4 in production.
+		DBG4(DBG_LIB, "(BOB) %s: BLAST shared secret %B", __func__, secret);
 
 	} else if (this->endpoint_type == EP_TYPE_INITIATOR) {
 
 		// Blast key should already be generated from the get_public_key call
 		*secret = chunk_clone(this->shared_secret);
-		DBG4(DBG_LIB, "%s: EP_TYPE_INITIATOR BLAST shared secret %B", __func__, secret);
+
+		// !!!WARNING!!!
+		//
+		// Enabling log level 4 will print out the shared secret.
+		// DO NOT enable log level 4 in production.
+		DBG4(DBG_LIB, "(ALICE) %s: BLAST shared secret %B", __func__, secret);
 
 	} else {
 
-		DBG1(DBG_LIB, "Error: unexpected endpoint_type %d", this->endpoint_type);
+		DBG1(DBG_LIB, "[BLAST] Error: unexpected endpoint_type %d", this->endpoint_type);
 		return FALSE;
 
 	}
 
-	DBG2(DBG_LIB, "Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
+	DBG2(DBG_LIB, "[BLAST] Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
 	return TRUE;
 
 }
@@ -242,17 +251,17 @@ METHOD(key_exchange_t, get_method, key_exchange_method_t, private_blast_ke_t *th
 
 METHOD(key_exchange_t, destroy, void, private_blast_ke_t *this)
 {
-    DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
+    DBG2(DBG_LIB, "[BLAST] Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
     int ret_code = qrypt_security_delete(&this->qrypt_security);
 	if (ret_code != QS_GOOD) {
-		DBG1(DBG_LIB, "Error: qrypt_security_delete returned %s", qs_error_str(ret_code));
+		DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_delete returned %s", qs_error_str(ret_code));
 		return;
 	}
 
 	chunk_free(&this->shared_secret);
 	chunk_free(&this->metadata);
 	free(this);
-	DBG2(DBG_LIB, "Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
+	DBG2(DBG_LIB, "[BLAST] Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
 }
 
 /*
@@ -264,11 +273,11 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	private_blast_ke_t *this;
 	char *token = NULL;
 	size_t token_length = 0;
-    DBG2(DBG_LIB, "Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
+    DBG2(DBG_LIB, "[BLAST] Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
 
 	token = lib->settings->get_str(lib->settings, "%s.plugins.blast.jwt", NULL, lib->ns);
 	if (token == NULL) {
-		DBG1(DBG_LIB, "JMP Blast JWT token is not set\n");
+		DBG1(DBG_LIB, "[BLAST] Error: JMP Blast JWT token is not set\n");
 		return NULL;
 	}
 	token_length = strlen(token) + 1;
@@ -289,11 +298,9 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		.shared_secret = chunk_empty,
 	);
 
-    //DBG1(DBG_LIB, "EJF %s\n", token);
-
 	int ret_code = qrypt_security_create(&this->qrypt_security);
 	if ( ret_code != QS_GOOD ) {
-		DBG1(DBG_LIB, "Error: qrypt_security_create returned %s", qs_error_str(ret_code));
+		DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_create returned %s", qs_error_str(ret_code));
 		return NULL;
 	}
 
@@ -302,13 +309,13 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	char *serverlist[20] = {0};
 	char *serverfile = lib->settings->get_str(lib->settings, "%s.plugins.blast.serverfile", NULL, lib->ns);
 	if (serverfile == NULL) {
-		DBG1(DBG_LIB, "serverfile not set! skipping...\n");
+		DBG1(DBG_LIB, "[BLAST] serverfile not set! skipping...\n");
 		// NOT fatal, just don't load servers
 	} else {
 		// Open file, read lines, split lines, write as array, set
 		chunk_t *servers_orig = chunk_map(serverfile, 'r');
 		if (servers_orig == NULL) {
-			DBG1(DBG_LIB, "Error: could not load serverfile '%s'\n", serverfile);
+			DBG1(DBG_LIB, "[BLAST] Error: could not load serverfile '%s'\n", serverfile);
 			return NULL;
 		}
 		servers = chunk_create_clone(malloc(servers_orig->len + 1), *servers_orig);
@@ -320,7 +327,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 			if(line.len == 0) {
 				break;
 			}
-			DBG1(DBG_LIB, "server %.*s loaded\n", line.len, line.ptr);
+			DBG2(DBG_LIB, "[BLAST] server %.*s loaded\n", line.len, line.ptr);
 
 			// Null terminate
 			unsigned char *one_past_last = line.ptr + line.len;
@@ -351,7 +358,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 
 	ret_code = qrypt_security_initialize_client_config(&this->qrypt_security, token, token_length, client_config);
 	if ( ret_code != QS_GOOD ) {
-		DBG1(DBG_LIB, "Error: qrypt_security_initialize returned %s", qs_error_str(ret_code));
+		DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_initialize returned %s", qs_error_str(ret_code));
 		return NULL;
 	}
 
@@ -361,7 +368,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		chunk_free(&servers);
 	}
 
-	DBG2(DBG_LIB, "Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
+	DBG2(DBG_LIB, "[BLAST] Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
 	return &this->public;
 
 }
