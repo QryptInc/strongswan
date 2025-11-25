@@ -115,6 +115,8 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
 			return FALSE;
 		}
 
+		DBG1(DBG_LIB, "[BLAST] (ALICE) Own public key successfully retrieved!");
+
 	} else if (this->endpoint_type == EP_TYPE_RESPONDER ) {
 
 		DBG2(DBG_LIB, "[BLAST] (BOB) %s: returning ack...", __func__);
@@ -160,6 +162,8 @@ METHOD(key_exchange_t, set_public_key, bool, private_blast_ke_t *this, chunk_t v
 			DBG1(DBG_LIB, "[BLAST] Error: Responder did not receive metadata");
 			return FALSE;
 		}
+
+		DBG1(DBG_LIB, "[BLAST] (BOB) Peer's public key successfully verified and set!");
 
 	} else if (this->endpoint_type == EP_TYPE_INITIATOR ) {
 
@@ -220,6 +224,7 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 		// Enabling log level 4 will print out the shared secret.
 		// DO NOT enable log level 4 in production.
 		DBG4(DBG_LIB, "(BOB) %s: BLAST shared secret %B", __func__, secret);
+		DBG1(DBG_LIB, "[BLAST] (BOB) Shared secret successfully established!");
 
 	} else if (this->endpoint_type == EP_TYPE_INITIATOR) {
 
@@ -231,6 +236,7 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 		// Enabling log level 4 will print out the shared secret.
 		// DO NOT enable log level 4 in production.
 		DBG4(DBG_LIB, "(ALICE) %s: BLAST shared secret %B", __func__, secret);
+		DBG1(DBG_LIB, "[BLAST] (ALICE) Shared secret successfully established!");
 
 	} else {
 
