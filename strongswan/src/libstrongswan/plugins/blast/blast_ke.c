@@ -121,7 +121,7 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
 
 		DBG2(DBG_LIB, "[BLAST] (BOB) %s: returning ack...", __func__);
 
-        uint8_t ssecret[32] = "metadata_rcvd\n";
+        uint8_t ssecret[32] = "metadata_rcvd";
         *value = chunk_clone(chunk_from_thing(ssecret));
 
 	}
@@ -283,7 +283,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 
 	token = lib->settings->get_str(lib->settings, "%s.plugins.blast.jwt", NULL, lib->ns);
 	if (token == NULL) {
-		DBG1(DBG_LIB, "[BLAST] Error: JMP Blast JWT token is not set\n");
+		DBG1(DBG_LIB, "[BLAST] Error: JMP Blast JWT token is not set");
 		return NULL;
 	}
 	token_length = strlen(token) + 1;
@@ -315,13 +315,13 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	char *serverlist[20] = {0};
 	char *serverfile = lib->settings->get_str(lib->settings, "%s.plugins.blast.serverfile", NULL, lib->ns);
 	if (serverfile == NULL) {
-		DBG1(DBG_LIB, "[BLAST] serverfile not set! skipping...\n");
+		DBG1(DBG_LIB, "[BLAST] serverfile not set! skipping...");
 		// NOT fatal, just don't load servers
 	} else {
 		// Open file, read lines, split lines, write as array, set
 		chunk_t *servers_orig = chunk_map(serverfile, 'r');
 		if (servers_orig == NULL) {
-			DBG1(DBG_LIB, "[BLAST] Error: could not load serverfile '%s'\n", serverfile);
+			DBG1(DBG_LIB, "[BLAST] Error: could not load serverfile '%s'", serverfile);
 			return NULL;
 		}
 		servers = chunk_create_clone(malloc(servers_orig->len + 1), *servers_orig);
@@ -333,7 +333,7 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 			if(line.len == 0) {
 				break;
 			}
-			DBG2(DBG_LIB, "[BLAST] server %.*s loaded\n", line.len, line.ptr);
+			DBG2(DBG_LIB, "[BLAST] server %.*s loaded", line.len, line.ptr);
 
 			// Null terminate
 			unsigned char *one_past_last = line.ptr + line.len;
@@ -347,12 +347,12 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	}
 	char *api_key = lib->settings->get_str(lib->settings, "%s.plugins.blast.api_key", NULL, lib->ns);
 	if (api_key == NULL) {
-		DBG1(DBG_LIB, "[BLAST] api_key not set\n");
+		DBG1(DBG_LIB, "[BLAST] api_key not set");
 		// NOT fatal, just don't use
 	}
 	char *ca_cert_path = lib->settings->get_str(lib->settings, "%s.plugins.blast.ca_cert_path", NULL, lib->ns);
 	if (ca_cert_path == NULL) {
-		DBG1(DBG_LIB, "[BLAST] ca_cert_path not set. If a QS_CANNOT_DOWNLOAD error follows, try setting this\n");
+		DBG1(DBG_LIB, "[BLAST] ca_cert_path not set. If a QS_CANNOT_DOWNLOAD error follows, try setting this");
 		// NOT fatal, just don't use
 	}
 	client_config_t client_config = {
