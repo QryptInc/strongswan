@@ -37,6 +37,7 @@ def strongswan_qrypt(name, enable_systemd = True):
 		"plugins/libstrongswan-blast.so",
 		"plugins/libstrongswan-cmac.so",
 		"plugins/libstrongswan-constraints.so",
+		"plugins/libstrongswan-counters.so",
 		"plugins/libstrongswan-dnskey.so",
 		"plugins/libstrongswan-drbg.so",
 		"plugins/libstrongswan-kdf.so",
