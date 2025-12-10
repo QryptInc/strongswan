@@ -111,10 +111,10 @@ def strongswan_qrypt(name, enable_systemd = True):
         ],
 
         env = select({
-            "//tools/platforms:is_x86_64": {
+            "//tools/platforms:exec_x86_64": {
                 "PKG_CONFIG_PATH": "/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
             },
-            "//conditions:default": {
+            "//tools/platforms:exec_aarch64": {
                 "PKG_CONFIG_PATH": "/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig",
             },
         }),
