@@ -10,12 +10,14 @@ def strongswan_qrypt(name, enable_systemd = True):
         enable_systemd: If True, builds with systemd support,
                         including the charon-systemd binary and service file.
     """
+    arch = select({
+        "//tools/platforms:exec_x86_64": "x86_64",
+        "//tools/platforms:exec_aarch64": "aarch64",
+    })
+
     print_config(
         name = name + "_arch_info",
-        arch = select({
-            "//tools/platforms:exec_x86_64":  "x86_64",
-            "//tools/platforms:exec_aarch64": "aarch64",
-        }),
+        arch = arch
     )
 
     # Base configuration
@@ -28,6 +30,12 @@ def strongswan_qrypt(name, enable_systemd = True):
         "--enable-oqs",
         "--enable-counters",
     ]
+
+    # Add host flag for cross-compilation
+    if arch == "x86_64":
+        configure_options.append("--host=x86_64-linux-gnu")
+    elif arch == "x86_64":
+        configure_options.append("--host=aarch64-linux-gnu")
 
     out_binaries = [
         "charon-cmd",
