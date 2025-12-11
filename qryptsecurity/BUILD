@@ -3,12 +3,12 @@ genrule(
     srcs = ["setup_conan.sh"],
     outs = ["conan_home.tar.gz"],
     cmd = select({
-        "//tools/platforms:is_x86_64": """
+        "//tools/platforms:exec_x86_64": """
             CONAN_HOME_DIR="$$(mktemp -d)"
             ./$(location setup_conan.sh) "$$CONAN_HOME_DIR" "x86_64"
             tar -czf $@ -C "$$CONAN_HOME_DIR" .
         """,
-        "//conditions:default": """
+        "//tools/platforms:exec_aarch64": """
             CONAN_HOME_DIR="$$(mktemp -d)"
             ./$(location setup_conan.sh) "$$CONAN_HOME_DIR" "$$(uname -m)"
             tar -czf $@ -C "$$CONAN_HOME_DIR" .
@@ -24,14 +24,14 @@ genrule(
     ],
     outs = ["qrypt_sdk.tar.gz"],
     cmd = select({
-        "//tools/platforms:is_x86_64": """
+        "//tools/platforms:exec_x86_64": """
             CONAN_HOME_DIR=$$(mktemp -d)
             tar -xzf $(location :setup_conan) -C $$CONAN_HOME_DIR
             DEPLOY_DIR=$$(mktemp -d)
             ./$(location pull_sdk.sh) $$CONAN_HOME_DIR $$DEPLOY_DIR "x86_64"
             tar -czf $@ -C $$DEPLOY_DIR .
         """,
-        "//conditions:default": """
+        "//tools/platforms:exec_aarch64": """
             CONAN_HOME_DIR=$$(mktemp -d)
             tar -xzf $(location :setup_conan) -C $$CONAN_HOME_DIR
             DEPLOY_DIR=$$(mktemp -d)
