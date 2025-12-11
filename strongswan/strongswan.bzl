@@ -1,4 +1,5 @@
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "configure_make")
+load("//tools/platforms:print_config.bzl", "print_config")
 
 def strongswan_qrypt(name, enable_systemd = True):
     """
@@ -9,11 +10,13 @@ def strongswan_qrypt(name, enable_systemd = True):
         enable_systemd: If True, builds with systemd support,
                         including the charon-systemd binary and service file.
     """
-    arch_str = select({
-				"//tools/platforms:exec_x86_64": "target architecture: x86_64",
-				"//tools/platforms:exec_aarch64": "target architecture: aarch64",
-    })
-    print(arch_str)
+    print_config(
+        name = name + "_arch_info",
+        arch = select({
+            "//tools/platforms:exec_x86_64":  "x86_64",
+            "//tools/platforms:exec_aarch64": "aarch64",
+        }),
+    )
 
     # Base configuration
     configure_options = [
@@ -108,6 +111,7 @@ def strongswan_qrypt(name, enable_systemd = True):
         lib_source = ":strongswan-qrypt-repo",
         data = [
             ":strongswan-qrypt-repo",
+            ":" + name + "_arch_info",
         ],
         deps = [
             ":hiredis",
