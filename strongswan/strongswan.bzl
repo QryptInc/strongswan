@@ -31,12 +31,6 @@ def strongswan_qrypt(name, enable_systemd = True):
         "--enable-counters",
     ]
 
-    # Add host flag for cross-compilation
-    if arch == "x86_64":
-        configure_options.append("--host=x86_64-linux-gnu")
-    elif arch == "aarch64":
-        configure_options.append("--host=aarch64-linux-gnu")
-
     out_binaries = [
         "charon-cmd",
         "swanctl",
@@ -95,7 +89,10 @@ def strongswan_qrypt(name, enable_systemd = True):
         name = name,
 
         # Configurable settings
-        configure_options = configure_options,
+        configure_options = configure_options + select({
+            "//tools/platforms:exec_x86_64": ["--host=x86_64-linux-gnu"],
+            "//tools/platforms:exec_aarch64": ["--host=aarch64-linux-gnu"],
+        }),
         out_binaries = out_binaries,
         out_data_files = out_data_files,
 
