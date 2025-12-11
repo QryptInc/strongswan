@@ -6,7 +6,6 @@ module(
 
 bazel_dep(name = "rules_foreign_cc", version = "0.15.0")
 bazel_dep(name = "platforms", version = "0.0.11")
-bazel_dep(name = "bazel_skylib", version = "1.8.2")
 
 register_toolchains(
 		"//tools/toolchains:cc_toolchain_for_linux_x86_64",  # cross compile arm -> x86
