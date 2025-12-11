@@ -34,7 +34,7 @@ def strongswan_qrypt(name, enable_systemd = True):
     # Add host flag for cross-compilation
     if arch == "x86_64":
         configure_options.append("--host=x86_64-linux-gnu")
-    elif arch == "x86_64":
+    elif arch == "aarch64":
         configure_options.append("--host=aarch64-linux-gnu")
 
     out_binaries = [
