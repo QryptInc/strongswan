@@ -10,7 +10,7 @@ genrule(
         """,
         "//tools/platforms:exec_aarch64": """
             CONAN_HOME_DIR="$$(mktemp -d)"
-            ./$(location setup_conan.sh) "$$CONAN_HOME_DIR" "$$(uname -m)"
+            ./$(location setup_conan.sh) "$$CONAN_HOME_DIR" "aarch64"
             tar -czf $@ -C "$$CONAN_HOME_DIR" .
         """,
     }),
@@ -35,7 +35,7 @@ genrule(
             CONAN_HOME_DIR=$$(mktemp -d)
             tar -xzf $(location :setup_conan) -C $$CONAN_HOME_DIR
             DEPLOY_DIR=$$(mktemp -d)
-            ./$(location pull_sdk.sh) $$CONAN_HOME_DIR $$DEPLOY_DIR "$$(uname -m)"
+            ./$(location pull_sdk.sh) $$CONAN_HOME_DIR $$DEPLOY_DIR "aarch64"
             tar -czf $@ -C $$DEPLOY_DIR .
         """,
     }),
