@@ -9,6 +9,11 @@ def strongswan_qrypt(name, enable_systemd = True):
         enable_systemd: If True, builds with systemd support,
                         including the charon-systemd binary and service file.
     """
+    arch_str = select({
+				"//tools/platforms:exec_x86_64": "target architecture: x86_64",
+				"//tools/platforms:exec_aarch64": "target architecture: aarch64",
+    })
+    print(arch_str)
 
     # Base configuration
     configure_options = [
@@ -18,7 +23,7 @@ def strongswan_qrypt(name, enable_systemd = True):
         "--sysconfdir=/etc",
         "--enable-cmd",
         "--enable-oqs",
-		"--enable-counters",
+        "--enable-counters",
     ]
 
     out_binaries = [
@@ -29,38 +34,38 @@ def strongswan_qrypt(name, enable_systemd = True):
     out_data_files = []
 
     out_shared_libs = [
-		"libcharon.so.0",
-		"libstrongswan.so.0",
-		"libtls.so.0",
-		"libvici.so.0",
-		"plugins/libstrongswan-attr.so",
-		"plugins/libstrongswan-blast.so",
-		"plugins/libstrongswan-cmac.so",
-		"plugins/libstrongswan-constraints.so",
-		"plugins/libstrongswan-counters.so",
-		"plugins/libstrongswan-dnskey.so",
-		"plugins/libstrongswan-drbg.so",
-		"plugins/libstrongswan-kdf.so",
-		"plugins/libstrongswan-kernel-netlink.so",
-		"plugins/libstrongswan-nonce.so",
-		"plugins/libstrongswan-openssl.so",
-		"plugins/libstrongswan-oqs.so",
-		"plugins/libstrongswan-pem.so",
-		"plugins/libstrongswan-pgp.so",
-		"plugins/libstrongswan-pkcs1.so",
-		"plugins/libstrongswan-pkcs7.so",
-		"plugins/libstrongswan-pkcs8.so",
-		"plugins/libstrongswan-pubkey.so",
-		"plugins/libstrongswan-redis.so",
-		"plugins/libstrongswan-resolve.so",
-		"plugins/libstrongswan-revocation.so",
-		"plugins/libstrongswan-socket-default.so",
-		"plugins/libstrongswan-sshkey.so",
-		"plugins/libstrongswan-updown.so",
-		"plugins/libstrongswan-vici.so",
-		"plugins/libstrongswan-x509.so",
-		"plugins/libstrongswan-xauth-generic.so",
-		"plugins/libstrongswan-xcbc.so",
+        "libcharon.so.0",
+        "libstrongswan.so.0",
+        "libtls.so.0",
+        "libvici.so.0",
+        "plugins/libstrongswan-attr.so",
+        "plugins/libstrongswan-blast.so",
+        "plugins/libstrongswan-cmac.so",
+        "plugins/libstrongswan-constraints.so",
+        "plugins/libstrongswan-counters.so",
+        "plugins/libstrongswan-dnskey.so",
+        "plugins/libstrongswan-drbg.so",
+        "plugins/libstrongswan-kdf.so",
+        "plugins/libstrongswan-kernel-netlink.so",
+        "plugins/libstrongswan-nonce.so",
+        "plugins/libstrongswan-openssl.so",
+        "plugins/libstrongswan-oqs.so",
+        "plugins/libstrongswan-pem.so",
+        "plugins/libstrongswan-pgp.so",
+        "plugins/libstrongswan-pkcs1.so",
+        "plugins/libstrongswan-pkcs7.so",
+        "plugins/libstrongswan-pkcs8.so",
+        "plugins/libstrongswan-pubkey.so",
+        "plugins/libstrongswan-redis.so",
+        "plugins/libstrongswan-resolve.so",
+        "plugins/libstrongswan-revocation.so",
+        "plugins/libstrongswan-socket-default.so",
+        "plugins/libstrongswan-sshkey.so",
+        "plugins/libstrongswan-updown.so",
+        "plugins/libstrongswan-vici.so",
+        "plugins/libstrongswan-x509.so",
+        "plugins/libstrongswan-xauth-generic.so",
+        "plugins/libstrongswan-xcbc.so",
     ]
 
     # Conditionally add systemd-related options
@@ -78,7 +83,7 @@ def strongswan_qrypt(name, enable_systemd = True):
     configure_make(
         name = name,
 
-		# Configurable settings
+        # Configurable settings
         configure_options = configure_options,
         out_binaries = out_binaries,
         out_data_files = out_data_files,
