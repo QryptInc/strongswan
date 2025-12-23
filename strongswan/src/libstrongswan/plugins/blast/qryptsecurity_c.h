@@ -1,5 +1,5 @@
 #ifdef __cplusplus
-extern "C" {    
+extern "C" {
 #endif
 #include <inttypes.h>
 
@@ -80,6 +80,11 @@ typedef struct {
     /// API Key
     /// </summary>
     char* api_key;
+
+    /// <summary>
+    /// Custom User-Agent header for HTTP requests
+    /// </summary>
+    char* user_agent;
 } client_config_t;
 
 /// <summary>

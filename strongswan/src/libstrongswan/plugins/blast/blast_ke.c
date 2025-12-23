@@ -3,6 +3,7 @@
 #include <library.h>
 #include <utils/lexparser.h>
 #include <utils/debug.h>
+#include <config.h>
 
 typedef struct private_blast_ke_t private_blast_ke_t;
 
@@ -359,7 +360,8 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		.static_servers = serverlist,
 		.static_servers_count = count,
 		.api_key = api_key,
-		.ca_cert_path = ca_cert_path
+		.ca_cert_path = ca_cert_path,
+		.user_agent = "strongSwan/" PACKAGE_VERSION
 	};
 
 	ret_code = qrypt_security_initialize_client_config(&this->qrypt_security, token, token_length, client_config);
