@@ -220,11 +220,6 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 			return FALSE;
 		}
 
-		// !!!WARNING!!!
-		//
-		// Enabling log level 4 will print out the shared secret.
-		// DO NOT enable log level 4 in production.
-		DBG4(DBG_LIB, "(BOB) %s: BLAST shared secret %B", __func__, secret);
 		DBG1(DBG_LIB, "[BLAST] (BOB) Shared secret successfully established!");
 
 	} else if (this->endpoint_type == EP_TYPE_INITIATOR) {
@@ -232,11 +227,6 @@ METHOD(key_exchange_t, get_shared_secret, bool, private_blast_ke_t *this, chunk_
 		// Blast key should already be generated from the get_public_key call
 		*secret = chunk_clone(this->shared_secret);
 
-		// !!!WARNING!!!
-		//
-		// Enabling log level 4 will print out the shared secret.
-		// DO NOT enable log level 4 in production.
-		DBG4(DBG_LIB, "(ALICE) %s: BLAST shared secret %B", __func__, secret);
 		DBG1(DBG_LIB, "[BLAST] (ALICE) Shared secret successfully established!");
 
 	} else {
