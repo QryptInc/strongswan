@@ -81,7 +81,9 @@ METHOD(key_exchange_t, get_public_key, bool, private_blast_ke_t *this, chunk_t *
 {
 
     symmetric_key_data_t key_data;
-	key_config_t key_config = { 300 };
+	key_config_t key_config = {
+		lib->settings->get_int(lib->settings, "%s.plugins.blast.ttl", 0, lib->ns)
+	};
 
 	DBG2(DBG_LIB, "[BLAST] Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
 
@@ -272,9 +274,9 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	size_t token_length = 0;
     DBG2(DBG_LIB, "[BLAST] Enter %s, %s (%d)", __func__, __FILE__, __LINE__ );
 
-	token = lib->settings->get_str(lib->settings, "%s.plugins.blast.jwt", NULL, lib->ns);
+	token = lib->settings->get_str(lib->settings, "%s.plugins.blast.token", NULL, lib->ns);
 	if (token == NULL) {
-		DBG1(DBG_LIB, "[BLAST] Error: JMP Blast JWT token is not set");
+		DBG1(DBG_LIB, "[BLAST] Error: BLAST token is not set");
 		return NULL;
 	}
 	token_length = strlen(token) + 1;
@@ -301,70 +303,63 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 		return NULL;
 	}
 
-	chunk_t servers = chunk_empty;
+	/* Parse server list */
 	int count = 0;
 	char *serverlist[20] = {0};
-	char *serverfile = lib->settings->get_str(lib->settings, "%s.plugins.blast.serverfile", NULL, lib->ns);
-	if (serverfile == NULL) {
-		DBG1(DBG_LIB, "[BLAST] serverfile not set! skipping...");
-		// NOT fatal, just don't load servers
+	char *servers_buf = NULL;
+	char *servers_str = lib->settings->get_str(lib->settings, "%s.plugins.blast.servers", NULL, lib->ns);
+
+	if (servers_str != NULL) {
+		servers_buf = strdup(servers_str);
+		char *saveptr = NULL;
+		char *entry = strtok_r(servers_buf, ",", &saveptr);
+		while (entry != NULL && count < 20) {
+			while (*entry == ' ' || *entry == '\t') {
+				entry++;
+			}
+			if (*entry != '\0') {
+				DBG2(DBG_LIB, "[BLAST] server %s loaded", entry);
+				serverlist[count++] = entry;
+			}
+			entry = strtok_r(NULL, ",", &saveptr);
+		}
 	} else {
-		// Open file, read lines, split lines, write as array, set
-		chunk_t *servers_orig = chunk_map(serverfile, 'r');
-		if (servers_orig == NULL) {
-			DBG1(DBG_LIB, "[BLAST] Error: could not load serverfile '%s'", serverfile);
-			return NULL;
-		}
-		servers = chunk_create_clone(malloc(servers_orig->len + 1), *servers_orig);
-		servers.ptr[servers_orig->len] = '\0';
-		chunk_unmap(servers_orig);
-
-		chunk_t parsing = servers;
-		for (chunk_t line = chunk_empty; fetchline(&parsing, &line) && count < 20;) {
-			if(line.len == 0) {
-				break;
-			}
-			DBG2(DBG_LIB, "[BLAST] server %.*s loaded", line.len, line.ptr);
-
-			// Null terminate
-			unsigned char *one_past_last = line.ptr + line.len;
-			if (one_past_last < servers.ptr + servers.len) {
-				one_past_last[0] = '\0';
-			}
-
-			// Add to list of servers
-			serverlist[count++] = (char *)line.ptr;
-		}
+		DBG2(DBG_LIB, "[BLAST] no servers configured, will query directory service");
 	}
-	char *api_key = lib->settings->get_str(lib->settings, "%s.plugins.blast.api_key", NULL, lib->ns);
-	if (api_key == NULL) {
-		DBG1(DBG_LIB, "[BLAST] api_key not set");
-		// NOT fatal, just don't use
+
+	/* Read auth header type (omitted/zero = BEARER_AUTH, the SDK default) */
+	enum qrypt_auth_header_type auth_type = 0;
+	char *auth_str = lib->settings->get_str(lib->settings, "%s.plugins.blast.auth_header_type", NULL, lib->ns);
+	if (auth_str != NULL && strcasecmp(auth_str, "xapi") == 0) {
+		auth_type = XAPI_AUTH;
 	}
+
+	/* Read remaining config */
 	char *ca_cert_path = lib->settings->get_str(lib->settings, "%s.plugins.blast.ca_cert_path", NULL, lib->ns);
-	if (ca_cert_path == NULL) {
-		DBG1(DBG_LIB, "[BLAST] ca_cert_path not set. If a QS_CANNOT_DOWNLOAD error follows, try setting this");
-		// NOT fatal, just don't use
-	}
+	char *user_agent = lib->settings->get_str(lib->settings, "%s.plugins.blast.user_agent", NULL, lib->ns);
+
 	client_config_t client_config = {
+		.ca_cert_path = ca_cert_path,
 		.static_servers = serverlist,
 		.static_servers_count = count,
-		.api_key = api_key,
-		.ca_cert_path = ca_cert_path,
-		.user_agent = "strongSwan/" PACKAGE_VERSION
+		.static_servers_tg = lib->settings->get_int(lib->settings, "%s.plugins.blast.tg", 0, lib->ns),
+		.static_servers_tf = lib->settings->get_int(lib->settings, "%s.plugins.blast.tf", 0, lib->ns),
+		.static_servers_ta = lib->settings->get_int(lib->settings, "%s.plugins.blast.ta", 0, lib->ns),
+		.static_servers_tp = lib->settings->get_int(lib->settings, "%s.plugins.blast.tp", 0, lib->ns),
+		.auth_header_type = auth_type,
+		.user_agent = user_agent,
 	};
 
 	ret_code = qrypt_security_initialize_client_config(&this->qrypt_security, token, token_length, client_config);
-	if ( ret_code != QS_GOOD ) {
+	if (ret_code != QS_GOOD) {
 		DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_initialize returned %s", qs_error_str(ret_code));
+		free(servers_buf);
 		return NULL;
 	}
 
-	qrypt_security_set_log_level(QRYPTSECURITY_LOG_LEVEL_INFO);
+	qrypt_security_set_log_level(QRYPTSECURITY_LOG_LEVEL_DEBUG);
 
-	if (servers.ptr != NULL) {
-		chunk_free(&servers);
-	}
+	free(servers_buf);
 
 	DBG2(DBG_LIB, "[BLAST] Exit %s, %s (%d)", __func__, __FILE__, __LINE__);
 	return &this->public;

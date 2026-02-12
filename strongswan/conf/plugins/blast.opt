@@ -1,5 +1,5 @@
-charon.plugins.blast.jwt =
-	Authentication token (JWT) for the Qrypt BLAST service. Required.
+charon.plugins.blast.token =
+	Authentication token for the Qrypt BLAST service. Required.
 
 charon.plugins.blast.auth_header_type =
 	Authentication header type to use when communicating with QDEA servers.
