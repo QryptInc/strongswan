@@ -31,10 +31,10 @@ typedef struct blast_ke_t blast_ke_t;
  */
 struct blast_ke_t {
 
-	/**
-	 * Implements key_exchange_t interface.
-	 */
-	key_exchange_t ke;
+  /**
+   * Implements key_exchange_t interface.
+   */
+  key_exchange_t ke;
 };
 
 /**

@@ -3,7 +3,7 @@
  * @ingroup plugins
  *
  * @defgroup blast_plugin blast_plugin
- * @{ @ingroup ntru_p
+ * @{ @ingroup blast_p
  */
 
 #ifndef BLAST_PLUGIN_H_
@@ -18,10 +18,10 @@ typedef struct blast_plugin_t blast_plugin_t;
  */
 struct blast_plugin_t {
 
-	/**
-	 * implements plugin interface
-	 */
-	plugin_t plugin;
+  /**
+   * implements plugin interface
+   */
+  plugin_t plugin;
 };
 
 #endif /** BLAST_PLUGIN_H_ @}*/
