@@ -1,9 +1,8 @@
 #include "blast_ke.h"
 #include "qryptsecurity_c.h"
 #include <library.h>
-#include <utils/lexparser.h>
 #include <utils/debug.h>
-#include <config.h>
+#include <strings.h>
 
 typedef struct private_blast_ke_t private_blast_ke_t;
 
@@ -298,8 +297,9 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	);
 
 	int ret_code = qrypt_security_create(&this->qrypt_security);
-	if ( ret_code != QS_GOOD ) {
+	if (ret_code != QS_GOOD) {
 		DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_create returned %s", qs_error_str(ret_code));
+		free(this);
 		return NULL;
 	}
 
@@ -318,6 +318,11 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 				entry++;
 			}
 			if (*entry != '\0') {
+				/* trim trailing whitespace */
+				char *end = entry + strlen(entry) - 1;
+				while (end > entry && (*end == ' ' || *end == '\t')) {
+					*end-- = '\0';
+				}
 				DBG2(DBG_LIB, "[BLAST] server %s loaded", entry);
 				serverlist[count++] = entry;
 			}
@@ -328,10 +333,12 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	}
 
 	/* Read auth header type (omitted/zero = BEARER_AUTH, the SDK default) */
-	enum qrypt_auth_header_type auth_type = 0;
+	enum qrypt_auth_header_type auth_type;
 	char *auth_str = lib->settings->get_str(lib->settings, "%s.plugins.blast.auth_header_type", NULL, lib->ns);
 	if (auth_str != NULL && strcasecmp(auth_str, "xapi") == 0) {
 		auth_type = XAPI_AUTH;
+	} else if (auth_str != NULL && strcasecmp(auth_str, "bearer") == 0) {
+		auth_type = BEARER_AUTH;
 	}
 
 	/* Read remaining config */
@@ -354,6 +361,8 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method)
 	if (ret_code != QS_GOOD) {
 		DBG1(DBG_LIB, "[BLAST] Error: qrypt_security_initialize returned %s", qs_error_str(ret_code));
 		free(servers_buf);
+		qrypt_security_delete(&this->qrypt_security);
+		free(this);
 		return NULL;
 	}
 

@@ -20,7 +20,7 @@ else
 fi
 
 conan install \
-    --requires qryptsdkwrapper/0.12.7@qrypt/dev \
+    --requires qryptsdkwrapper/c-authtype@qrypt/dev \
     -o "&:language=c" \
     --profile "$PROFILE" \
     --deployer-package="&" \
