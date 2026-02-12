@@ -1,2 +1,41 @@
-charon.plugins.blast.jwt = 
-    Blast API JWT
+charon.plugins.blast.jwt =
+	Authentication token (JWT) for the Qrypt BLAST service. Required.
+
+charon.plugins.blast.auth_header_type =
+	Authentication header type to use when communicating with QDEA servers.
+	Accepted values are `bearer` (Bearer token) and `xapi` (X-API-Key header).
+	If not set, uses the SDK default of `bearer`.
+
+charon.plugins.blast.ca_cert_path =
+	Absolute path to a CA root certificate for use with libcurl when connecting
+	to QDEA servers. If not set and a `QS_CANNOT_DOWNLOAD` error occurs, try
+	setting this to the system CA bundle path.
+
+charon.plugins.blast.user_agent =
+	Custom User-Agent header for HTTP requests to QDEA servers. If not set,
+	defaults to `QryptSecurity-SDK/{version}`.
+
+charon.plugins.blast.ttl =
+	Time-to-live in seconds for key samples retrieved from QDEA servers.
+	A value of 0 uses the SDK default of 3600.
+
+charon.plugins.blast.servers =
+	Comma-separated list of QDEA server domain names to use as key sources.
+	If not set, the directory service will be queried to discover servers
+	automatically.
+
+charon.plugins.blast.tg =
+	Number of "Good" (honest and available) servers assumed in the QDEA
+	infrastructure. If not set, uses the SDK default of 9.
+
+charon.plugins.blast.tf =
+	Number of "Faulty" (unavailable) servers assumed in the QDEA
+	infrastructure. If not set, uses the SDK default of 0.
+
+charon.plugins.blast.ta =
+	Number of "Malicious" (adversarial) servers assumed in the QDEA
+	infrastructure. If not set, uses the SDK default of 0.
+
+charon.plugins.blast.tp =
+	Number of "Curious" (honest-but-curious) servers assumed in the QDEA
+	infrastructure. If not set, uses the SDK default of 1.
