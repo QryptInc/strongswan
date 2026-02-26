@@ -13,7 +13,7 @@ charon.plugins.blast.ca_cert_path =
 
 charon.plugins.blast.user_agent =
 	Custom User-Agent header for HTTP requests to QDEA servers. If not set,
-	defaults to `QryptSecurity-SDK/{version}`.
+	defaults to `strongSwan/{version}`.
 
 charon.plugins.blast.ttl =
 	Time-to-live in seconds for key samples retrieved from QDEA servers.
