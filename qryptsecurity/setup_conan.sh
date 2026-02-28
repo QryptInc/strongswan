@@ -15,10 +15,8 @@ export CONAN_HOME="$CONAN_HOME_DIR"
 PIP_DIR="$(mktemp -d)"
 export PYTHONUSERBASE="$PIP_DIR"
 if ! python3 -m pip --version >/dev/null 2>&1; then
-    curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 - --user --quiet
     curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 - --user --quiet --break-system-packages
 fi
-python3 -m pip install --user --quiet conan==2.8.1
 python3 -m pip install --user --quiet --break-system-packages conan==2.8.1
 export PATH="$PIP_DIR/bin:$PATH"
 
