@@ -9,12 +9,17 @@ export CONAN_HOME="$CONAN_HOME_DIR"
 # Bootstrap pip if needed, then install conan into a temporary directory.
 # We avoid `python3 -m pip` and `python3 -m venv` because Bazel sandbox
 # environments may lack both the pip module and the ensurepip/venv packages.
+# --break-system-packages is required on Python 3.12+ (PEP 668) where Debian
+# marks the interpreter as externally-managed. This is safe here because we
+# install into an isolated PYTHONUSERBASE inside the sandbox.
 PIP_DIR="$(mktemp -d)"
 export PYTHONUSERBASE="$PIP_DIR"
 if ! python3 -m pip --version >/dev/null 2>&1; then
     curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 - --user --quiet
+    curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 - --user --quiet --break-system-packages
 fi
 python3 -m pip install --user --quiet conan==2.8.1
+python3 -m pip install --user --quiet --break-system-packages conan==2.8.1
 export PATH="$PIP_DIR/bin:$PATH"
 
 if [ "$ARCH" == "x86_64" ]; then
