@@ -6,11 +6,16 @@ mkdir -p "$CONAN_HOME_DIR"
 
 export CONAN_HOME="$CONAN_HOME_DIR"
 
-VENV_DIR="$(mktemp -d)"
-python3 -m venv "$VENV_DIR"
-source "$VENV_DIR/bin/activate"
-
-python3 -m pip install conan==2.8.1
+# Bootstrap pip if needed, then install conan into a temporary directory.
+# We avoid `python3 -m pip` and `python3 -m venv` because Bazel sandbox
+# environments may lack both the pip module and the ensurepip/venv packages.
+PIP_DIR="$(mktemp -d)"
+export PYTHONUSERBASE="$PIP_DIR"
+if ! python3 -m pip --version >/dev/null 2>&1; then
+    curl -sSL https://bootstrap.pypa.io/get-pip.py | python3 - --user --quiet
+fi
+python3 -m pip install --user --quiet conan==2.8.1
+export PATH="$PIP_DIR/bin:$PATH"
 
 if [ "$ARCH" == "x86_64" ]; then
     echo "Detected x86_64. Installing linux-x86_64 config..."
