@@ -6,6 +6,10 @@ mkdir -p "$CONAN_HOME_DIR"
 
 export CONAN_HOME="$CONAN_HOME_DIR"
 
+VENV_DIR="$(mktemp -d)"
+python3 -m venv "$VENV_DIR"
+source "$VENV_DIR/bin/activate"
+
 python3 -m pip install conan==2.8.1
 
 if [ "$ARCH" == "x86_64" ]; then
