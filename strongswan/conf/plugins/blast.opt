@@ -8,8 +8,7 @@ charon.plugins.blast.auth_header_type =
 
 charon.plugins.blast.ca_cert_path =
 	Absolute path to a CA root certificate for use with libcurl when connecting
-	to QDEA servers. If not set and a `QS_CANNOT_DOWNLOAD` error occurs, try
-	setting this to the system CA bundle path.
+	to QDEA servers. Defaults to `/etc/ssl/certs/ca-certificates.crt`.
 
 charon.plugins.blast.user_agent =
 	Custom User-Agent header for HTTP requests to QDEA servers. If not set,

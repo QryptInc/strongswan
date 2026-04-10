@@ -357,7 +357,8 @@ blast_ke_t *blast_ke_create(key_exchange_method_t method) {
 
   /* Read remaining config */
   char *ca_cert_path = lib->settings->get_str(
-      lib->settings, "%s.plugins.blast.ca_cert_path", NULL, lib->ns);
+      lib->settings, "%s.plugins.blast.ca_cert_path",
+      "/etc/ssl/certs/ca-certificates.crt", lib->ns);
   char *user_agent = lib->settings->get_str(
       lib->settings, "%s.plugins.blast.user_agent", "strongSwan/" VERSION,
       lib->ns);
